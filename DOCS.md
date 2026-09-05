@@ -46,55 +46,191 @@ device_area: "Living Room"
 
 ---
 
-## 🎨 Dashboard Card Examples
+## 🎨 Instant 1-Tap Home Assistant Remote Cards (Zero Popup, Zero Delay)
 
-### Standard Media Control Card
+### Option 1: Dedicated 1-Tap LG Remote Card (`custom:lg-remote-card`)
+This card is built directly into the integration and provides a tactile glassmorphic remote with the unified D-Pad wheel:
+
 ```yaml
-type: media-control
-entity: media_player.lg_webos_smart_tv
+type: custom:lg-remote-card
+name: Living Room Remote
+media_player: media_player.lg_webos_smart_tv
+remote_entity: remote.lg_webos_smart_tv
 ```
 
-### Living Room Tile Card
-```yaml
-type: tile
-entity: media_player.lg_webos_smart_tv
-name: Living Room TV
-features:
-  - type: media-player-volume-slider
-  - type: media-player-source-select
-```
+---
 
-### Compact D-Pad Remote Grid
+### Option 2: 100% Native Standard Home Assistant Cards with Instant 1-Tap Execution
+To ensure buttons execute immediately with **NO detail popup and NO second "Press" click**, configure `tap_action` as `perform-action` / `call-service`:
+
 ```yaml
-type: grid
-columns: 3
-square: true
+type: vertical-stack
+title: Living Room TV Remote
 cards:
-  - type: button
-    entity: button.lg_webos_smart_tv_back
-    icon: mdi:arrow-left
-  - type: button
-    entity: button.lg_webos_smart_tv_dpad_up
-    icon: mdi:chevron-up
-  - type: button
-    entity: button.lg_webos_smart_tv_nav_home
-    icon: mdi:home
-  - type: button
-    entity: button.lg_webos_smart_tv_dpad_left
-    icon: mdi:chevron-left
-  - type: button
-    entity: button.lg_webos_smart_tv_dpad_enter
-    icon: mdi:checkbox-marked-circle-outline
-  - type: button
-    entity: button.lg_webos_smart_tv_dpad_right
-    icon: mdi:chevron-right
-  - type: button
-    entity: button.lg_webos_smart_tv_nav_menu
-    icon: mdi:cog
-  - type: button
-    entity: button.lg_webos_smart_tv_dpad_down
-    icon: mdi:chevron-down
-  - type: button
-    entity: button.lg_webos_smart_tv_nav_exit
-    icon: mdi:close-circle-outline
+  # 1. Power, Mute & Apps
+  - type: horizontal-stack
+    cards:
+      - type: button
+        name: Power
+        icon: mdi:power
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: POWER
+      - type: button
+        name: Screen Off
+        icon: mdi:television-ambient-light
+        tap_action:
+          action: call-service
+          service: lg_webos_smart_remote.screen_off
+      - type: button
+        name: YouTube
+        icon: mdi:youtube
+        tap_action:
+          action: call-service
+          service: lg_webos_smart_remote.open_youtube
+      - type: button
+        name: Netflix
+        icon: mdi:netflix
+        tap_action:
+          action: call-service
+          service: media_player.select_source
+          target:
+            entity_id: media_player.lg_webos_smart_tv
+          data:
+            source: Netflix
+
+  # 2. Unified D-Pad Navigation & OK Wheel
+  - type: grid
+    columns: 3
+    square: true
+    cards:
+      # Row 1
+      - type: button
+        icon: mdi:arrow-left
+        name: Back
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: BACK
+      - type: button
+        icon: mdi:chevron-up
+        name: Up
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: UP
+      - type: button
+        icon: mdi:home
+        name: Home
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: HOME
+
+      # Row 2 (Left, OK / Enter, Right)
+      - type: button
+        icon: mdi:chevron-left
+        name: Left
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: LEFT
+      - type: button
+        icon: mdi:checkbox-marked-circle-outline
+        name: OK
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: ENTER
+      - type: button
+        icon: mdi:chevron-right
+        name: Right
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: RIGHT
+
+      # Row 3
+      - type: button
+        icon: mdi:cog
+        name: Menu
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: MENU
+      - type: button
+        icon: mdi:chevron-down
+        name: Down
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: DOWN
+      - type: button
+        icon: mdi:close-circle-outline
+        name: Exit
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: EXIT
+
+  # 3. Volume & Channel Rockers
+  - type: horizontal-stack
+    cards:
+      - type: button
+        icon: mdi:volume-minus
+        name: Vol −
+        tap_action:
+          action: call-service
+          service: media_player.volume_down
+          target:
+            entity_id: media_player.lg_webos_smart_tv
+      - type: button
+        icon: mdi:volume-mute
+        name: Mute
+        tap_action:
+          action: call-service
+          service: remote.send_command
+          target:
+            entity_id: remote.lg_webos_smart_tv
+          data:
+            command: MUTE
+      - type: button
+        icon: mdi:volume-plus
+        name: Vol +
+        tap_action:
+          action: call-service
+          service: media_player.volume_up
+          target:
+            entity_id: media_player.lg_webos_smart_tv
 ```

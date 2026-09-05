@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 import voluptuous as vol
@@ -36,6 +37,16 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up the LG webOS Smart Remote component and register services."""
     hass.data.setdefault(DOMAIN, {})
+
+    # Register Lovelace custom card static resource
+    frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
+    card_path = os.path.join(frontend_dir, "lg-remote-card.js")
+    if os.path.exists(card_path):
+        hass.http.register_static_path(
+            "/lg_webos_smart_remote/lg-remote-card.js",
+            card_path,
+            cache_headers=False,
+        )
 
     async def handle_send_button(call: ServiceCall) -> None:
         """Handle send_button service."""
