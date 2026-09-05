@@ -215,7 +215,8 @@ class HomeAssistantBridge {
 
     // 1. Media Player
     this.publish(`${prefix}/media_player/${deviceId}/media_player/config`, {
-      name: device.name,
+      name: null,
+      has_entity_name: true,
       unique_id: `${deviceId}_media_player`,
       device,
       device_class: 'tv',
@@ -239,7 +240,8 @@ class HomeAssistantBridge {
 
     // 2. Remote
     this.publish(`${prefix}/remote/${deviceId}/remote/config`, {
-      name: `${device.name} Remote`,
+      name: 'Remote',
+      has_entity_name: true,
       unique_id: `${deviceId}_remote`,
       device,
       availability_topic: availTopic,
@@ -278,6 +280,7 @@ class HomeAssistantBridge {
     buttons.forEach((btn) => {
       this.publish(`${prefix}/button/${deviceId}/${btn.id}/config`, {
         name: btn.name,
+        has_entity_name: true,
         unique_id: `${deviceId}_btn_${btn.id}`,
         device,
         availability_topic: availTopic,
@@ -289,6 +292,7 @@ class HomeAssistantBridge {
     // 4. Select Source
     this.publish(`${prefix}/select/${deviceId}/source/config`, {
       name: 'Input Source',
+      has_entity_name: true,
       unique_id: `${deviceId}_select_source`,
       device,
       availability_topic: availTopic,
@@ -301,6 +305,7 @@ class HomeAssistantBridge {
     // 5. Binary Sensors & Sensors
     this.publish(`${prefix}/binary_sensor/${deviceId}/power/config`, {
       name: 'Power',
+      has_entity_name: true,
       unique_id: `${deviceId}_bs_power`,
       device,
       availability_topic: availTopic,
@@ -313,6 +318,7 @@ class HomeAssistantBridge {
 
     this.publish(`${prefix}/binary_sensor/${deviceId}/connectivity/config`, {
       name: 'Connectivity',
+      has_entity_name: true,
       unique_id: `${deviceId}_bs_connectivity`,
       device,
       availability_topic: availTopic,
@@ -325,6 +331,7 @@ class HomeAssistantBridge {
 
     this.publish(`${prefix}/binary_sensor/${deviceId}/muted/config`, {
       name: 'Muted',
+      has_entity_name: true,
       unique_id: `${deviceId}_bs_muted`,
       device,
       availability_topic: availTopic,
@@ -336,6 +343,7 @@ class HomeAssistantBridge {
 
     this.publish(`${prefix}/sensor/${deviceId}/current_app/config`, {
       name: 'Current App',
+      has_entity_name: true,
       unique_id: `${deviceId}_s_current_app`,
       device,
       availability_topic: availTopic,
@@ -345,6 +353,7 @@ class HomeAssistantBridge {
 
     this.publish(`${prefix}/sensor/${deviceId}/volume/config`, {
       name: 'Volume',
+      has_entity_name: true,
       unique_id: `${deviceId}_s_volume`,
       device,
       availability_topic: availTopic,
@@ -356,6 +365,7 @@ class HomeAssistantBridge {
     // 6. Text Entity (Typing)
     this.publish(`${prefix}/text/${deviceId}/typing/config`, {
       name: 'Virtual Keyboard',
+      has_entity_name: true,
       unique_id: `${deviceId}_text_typing`,
       device,
       availability_topic: availTopic,
@@ -417,14 +427,40 @@ class HomeAssistantBridge {
     if (!data || !data.domain) return;
     const { domain, service, service_data } = data;
     const entityId = (service_data && (service_data.entity_id || service_data.entity_ids)) ? String(service_data.entity_id || service_data.entity_ids) : '';
+    const deviceId = (service_data && service_data.device_id) ? String(service_data.device_id) : '';
 
-    if (!entityId.toLowerCase().includes('lg_webos_smart_tv') && !entityId.toLowerCase().includes('lg_tv')) {
+    const entLower = entityId.toLowerCase();
+    const isLgTvService = domain === 'lg_webos_smart_remote';
+    const isLgEntity = entLower.includes('lg_webos') || 
+                       entLower.includes('lg_tv') || 
+                       entLower.includes('tv_remote') ||
+                       entLower.includes('living_room_living_room') ||
+                       entLower.includes('d_pad') ||
+                       entLower.includes('screen_off') ||
+                       entLower.includes('screen_on') ||
+                       entLower.includes('power_on_wol') ||
+                       entLower.includes('power_off') ||
+                       deviceId.includes('cf7f119552f98a0ff46ed71a59071a96') ||
+                       deviceId.includes('774cdec99cfdca039dd668ddb5697e46');
+
+    if (!isLgTvService && !isLgEntity) {
       return;
     }
 
-    console.log(`[HA-Bridge] Handling HA Service Call: [${domain}.${service}] on ${entityId}`);
+    console.log(`[HA-Bridge] Handling HA Service Call: [${domain}.${service}] on ${entityId || deviceId}`);
 
     try {
+      // 0. Custom lg_webos_smart_remote Domain Services
+      if (domain === 'lg_webos_smart_remote') {
+        if (service === 'send_button' && service_data.button) await tv.sendButton(service_data.button);
+        else if (service === 'send_text' && service_data.text) await tv.sendText(service_data.text);
+        else if (service === 'show_toast' && service_data.message) await tv.showToast(service_data.message, service_data.icon);
+        else if (service === 'screen_off') await tv.turnScreenOff();
+        else if (service === 'screen_on') await tv.turnScreenOn();
+        else if (service === 'open_youtube') await tv.openYoutube(service_data.video_id || '');
+        return;
+      }
+
       // 1. Button Presses
       if (domain === 'button' && service === 'press') {
         const ent = entityId.toLowerCase();
@@ -432,11 +468,11 @@ class HomeAssistantBridge {
         else if (ent.includes('power_off')) await tv.turnOff();
         else if (ent.includes('screen_off') || ent.includes('turn_screen_off')) await tv.turnScreenOff();
         else if (ent.includes('screen_on') || ent.includes('turn_screen_on')) await tv.turnScreenOn();
-        else if (ent.includes('d_pad_up') || ent.includes('dpad_up')) await tv.sendButton('UP');
-        else if (ent.includes('d_pad_down') || ent.includes('dpad_down')) await tv.sendButton('DOWN');
-        else if (ent.includes('d_pad_left') || ent.includes('dpad_left')) await tv.sendButton('LEFT');
-        else if (ent.includes('d_pad_right') || ent.includes('dpad_right')) await tv.sendButton('RIGHT');
-        else if (ent.includes('d_pad_enter') || ent.includes('dpad_enter')) await tv.sendButton('ENTER');
+        else if (ent.includes('d_pad_up') || ent.includes('dpad_up') || ent.includes('_up')) await tv.sendButton('UP');
+        else if (ent.includes('d_pad_down') || ent.includes('dpad_down') || ent.includes('_down')) await tv.sendButton('DOWN');
+        else if (ent.includes('d_pad_left') || ent.includes('dpad_left') || ent.includes('_left')) await tv.sendButton('LEFT');
+        else if (ent.includes('d_pad_right') || ent.includes('dpad_right') || ent.includes('_right')) await tv.sendButton('RIGHT');
+        else if (ent.includes('d_pad_enter') || ent.includes('dpad_enter') || ent.includes('enter') || ent.includes('ok')) await tv.sendButton('ENTER');
         else if (ent.includes('back')) await tv.sendButton('BACK');
         else if (ent.includes('home')) await tv.sendButton('HOME');
         else if (ent.includes('menu')) await tv.sendButton('MENU');
