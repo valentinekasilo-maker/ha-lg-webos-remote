@@ -251,42 +251,16 @@ class HomeAssistantBridge {
       icon: 'mdi:remote-tv'
     });
 
-    // 3. Buttons
+    // 3. Remove raw individual button entities from discovery so HA doesn't generate 20 popup tiles
     const buttons = [
-      { id: 'power_on', name: 'Power On (WoL)', icon: 'mdi:power' },
-      { id: 'power_off', name: 'Power Off', icon: 'mdi:power-off' },
-      { id: 'screen_off', name: 'Turn Screen Off', icon: 'mdi:television-ambient-light' },
-      { id: 'screen_on', name: 'Turn Screen On', icon: 'mdi:television-guide' },
-      { id: 'dpad_up', name: 'D-Pad Up', icon: 'mdi:chevron-up' },
-      { id: 'dpad_down', name: 'D-Pad Down', icon: 'mdi:chevron-down' },
-      { id: 'dpad_left', name: 'D-Pad Left', icon: 'mdi:chevron-left' },
-      { id: 'dpad_right', name: 'D-Pad Right', icon: 'mdi:chevron-right' },
-      { id: 'dpad_enter', name: 'D-Pad Enter', icon: 'mdi:checkbox-marked-circle-outline' },
-      { id: 'nav_back', name: 'Back', icon: 'mdi:arrow-left' },
-      { id: 'nav_home', name: 'Home', icon: 'mdi:home' },
-      { id: 'nav_menu', name: 'Menu', icon: 'mdi:cog' },
-      { id: 'nav_exit', name: 'Exit', icon: 'mdi:close-circle-outline' },
-      { id: 'vol_up', name: 'Volume Up', icon: 'mdi:volume-plus' },
-      { id: 'vol_down', name: 'Volume Down', icon: 'mdi:volume-minus' },
-      { id: 'vol_mute', name: 'Mute Toggle', icon: 'mdi:volume-mute' },
-      { id: 'chan_up', name: 'Channel Up', icon: 'mdi:arrow-up-drop-circle-outline' },
-      { id: 'chan_down', name: 'Channel Down', icon: 'mdi:arrow-down-drop-circle-outline' },
-      { id: 'app_youtube', name: 'YouTube', icon: 'mdi:youtube' },
-      { id: 'app_netflix', name: 'Netflix', icon: 'mdi:netflix' },
-      { id: 'app_spotify', name: 'Spotify', icon: 'mdi:spotify' },
-      { id: 'app_browser', name: 'Web Browser', icon: 'mdi:web' }
+      'power_on', 'power_off', 'screen_off', 'screen_on',
+      'dpad_up', 'dpad_down', 'dpad_left', 'dpad_right', 'dpad_enter',
+      'nav_back', 'nav_home', 'nav_menu', 'nav_exit',
+      'vol_up', 'vol_down', 'vol_mute', 'chan_up', 'chan_down',
+      'app_youtube', 'app_netflix', 'app_spotify', 'app_browser'
     ];
-
-    buttons.forEach((btn) => {
-      this.publish(`${prefix}/button/${deviceId}/${btn.id}/config`, {
-        name: btn.name,
-        has_entity_name: true,
-        unique_id: `${deviceId}_btn_${btn.id}`,
-        device,
-        availability_topic: availTopic,
-        command_topic: `${deviceId}/button/${btn.id}/set`,
-        icon: btn.icon
-      });
+    buttons.forEach((btnId) => {
+      this.publish(`${prefix}/button/${deviceId}/${btnId}/config`, '', { retain: true });
     });
 
     // 4. Select Source
