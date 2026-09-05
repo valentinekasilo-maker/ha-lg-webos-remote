@@ -1,3 +1,4 @@
+require('dotenv').config();
 const os = require('os');
 const path = require('path');
 const http = require('http');
@@ -6,6 +7,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const tv = require('./src/lgtv');
+const haBridge = require('./src/ha-bridge');
 const { getConfig, updateConfig } = require('./src/config');
 
 function getLocalIPs() {
@@ -468,4 +470,7 @@ server.listen(PORT, '0.0.0.0', async () => {
 
   // Initial connect attempt
   tv.connect();
+
+  // Start Home Assistant MQTT Device & Entity Bridge
+  haBridge.start();
 });

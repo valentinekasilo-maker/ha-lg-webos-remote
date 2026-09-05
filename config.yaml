@@ -1,6 +1,6 @@
 name: "LG webOS Smart Remote"
-description: "Full-featured cybernetic glassmorphic web controller, pointer air mouse, and virtual keyboard for LG webOS Smart TVs"
-version: "1.0.2"
+description: "Full Home Assistant Device & Entity integration with cybernetic glassmorphic remote, pointer air mouse, and virtual keyboard for LG webOS Smart TVs"
+version: "1.1.0"
 slug: "lg_webos_smart_remote"
 init: false
 arch:
@@ -11,6 +11,10 @@ arch:
   - i386
 startup: services
 boot: auto
+services:
+  - mqtt:want
+discovery:
+  - mqtt
 ingress: true
 ingress_port: 8080
 panel_icon: "mdi:remote-tv"
@@ -24,6 +28,19 @@ ports_description:
 options:
   tv_ip: "192.168.50.145"
   tv_mac: "DC:03:98:69:CC:9A"
+  mqtt_host: "core-mosquitto"
+  mqtt_port: 1883
+  mqtt_user: ""
+  mqtt_password: ""
+  device_name: "LG webOS Smart TV"
+  device_area: "Living Room"
 schema:
   tv_ip: "str?"
   tv_mac: "str?"
+  client_key: "str?"
+  mqtt_host: "str?"
+  mqtt_port: "int?"
+  mqtt_user: "str?"
+  mqtt_password: "password?"
+  device_name: "str?"
+  device_area: "str?"
