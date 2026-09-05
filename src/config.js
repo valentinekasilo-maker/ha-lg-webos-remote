@@ -5,7 +5,7 @@ require('dotenv').config();
 const isHAAddon = fs.existsSync('/data');
 const DATA_DIR = isHAAddon ? '/data' : path.join(__dirname, '..');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
-const DEFAULT_CONFIG_FILE = path.join(__dirname, '..', 'config.default.json');
+const DEFAULT_CONFIG_FILE = path.join(__dirname, 'default-config.json');
 const HA_OPTIONS_FILE = '/data/options.json';
 
 // Default fallback configuration

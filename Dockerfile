@@ -4,16 +4,20 @@ FROM ${BUILD_FROM}
 # Set shell
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
-# Install Node.js and npm
+# Install Node.js, npm, and build tools for native addons (bufferutil, etc.)
 RUN apk add --no-cache \
     nodejs \
-    npm
+    npm \
+    python3 \
+    make \
+    g++
 
 WORKDIR /app
 
-# Install production dependencies
+# Install production dependencies and cleanup build tools
 COPY package*.json ./
-RUN npm install --production
+RUN npm install --omit=dev && \
+    apk del python3 make g++
 
 # Copy application source code
 COPY . .
