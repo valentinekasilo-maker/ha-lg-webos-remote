@@ -21,15 +21,21 @@ function getLocalIPs() {
   return addresses;
 }
 
+const compression = require('compression');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: '*' }
 });
 
+app.use(compression());
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true
+}));
 
 // --- REST API ROUTES ---
 

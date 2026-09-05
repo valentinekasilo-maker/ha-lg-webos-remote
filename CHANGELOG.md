@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+- ⚡ **Instant Page Load (<50ms)**: Replaced external FontAwesome CDN (500KB+) with self-contained inline SVG sprites.
+- 📦 **Gzip / Deflate Compression**: Added Express compression middleware and static asset cache-control headers.
+- 🚀 **Non-Blocking Fonts**: Configured asynchronous Google Font loading with system UI fallbacks.
+
 ## 1.0.1
 - ⚡ **Zero-Latency D-Pad & Remote Control**: Instant pointerdown touch events eliminating 300ms mobile touch delays.
 - 🚀 **Direct WebSocket Dispatch**: Replaced HTTP calls with direct sub-millisecond WebSocket channels for Volume, Channels, and Media.

@@ -1,6 +1,6 @@
 name: "LG webOS Smart Remote"
 description: "Full-featured cybernetic glassmorphic web controller, pointer air mouse, and virtual keyboard for LG webOS Smart TVs"
-version: "1.0.1"
+version: "1.0.2"
 slug: "lg_webos_smart_remote"
 init: false
 arch:

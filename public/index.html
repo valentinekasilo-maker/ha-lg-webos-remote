@@ -4,19 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>LG webOS Smart Remote</title>
-  <meta name="description" content="Sleek, real-time web controller and remote for LG webOS Smart TVs">
+  <meta name="description" content="Ultra-fast, real-time web controller and remote for LG webOS Smart TVs">
   
-  <!-- Google Fonts: Outfit & Inter -->
+  <!-- Non-blocking Google Fonts with instant system font fallback -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-tv" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></symbol>
+    <symbol id="icon-keyboard" viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm8 7H9v-2h6v2zm1-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></symbol>
+    <symbol id="icon-gear" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+    <symbol id="icon-power" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></symbol>
+    <symbol id="icon-screen" viewBox="0 0 24 24"><path d="M20 3H4c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h4v2h8v-2h4c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 14H4V5h16v12z"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="icon-up" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></symbol>
+    <symbol id="icon-right" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+    <symbol id="icon-down" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></symbol>
+    <symbol id="icon-left" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
+    <symbol id="icon-vol-high" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></symbol>
+    <symbol id="icon-vol-low" viewBox="0 0 24 24"><path d="M7 9v6h4l5 5V4L11 9H7z"/></symbol>
+    <symbol id="icon-mute" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></symbol>
+    <symbol id="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
+    <symbol id="icon-rewind" viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></symbol>
+    <symbol id="icon-forward" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></symbol>
+    <symbol id="icon-youtube" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></symbol>
+    <symbol id="icon-netflix" viewBox="0 0 24 24"><path d="M5.398 0v24h3.693V12.923L14.73 24h3.872V0h-3.693v11.077L9.27 0H5.398z"/></symbol>
+    <symbol id="icon-prime" viewBox="0 0 24 24"><path d="M13.882 17.587c-3.13 2.106-7.545 3.23-11.45 1.096-.54-.296-.062-.897.433-.67 3.42 1.572 7.37.755 10.158-1.073.43-.281.859.366.859.647zm1.196-1.428c-.415-.53-2.735-.25-3.778-.124-.312.038-.36-.24-.078-.44 1.83-1.295 4.825-.92 5.176-.48.35.44-.09 3.454-1.815 4.877-.265.22-.515.102-.39-.188.413-.96 1.299-3.115.885-3.645zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></symbol>
+    <symbol id="icon-plug" viewBox="0 0 24 24"><path d="M16 7V3h-2v4h-4V3H8v4c-1.66 0-3 1.34-3 3v5.5c0 3.04 2.46 5.5 5.5 5.5v3h3v-3c3.04 0 5.5-2.46 5.5-5.5V10c0-1.66-1.34-3-3-3z"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></symbol>
+    <symbol id="icon-apps" viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></symbol>
+    <symbol id="icon-calc" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 16H7v-2h6v2zm4 0h-2v-2h2v2zm0-4H7v-2h10v2zm0-4H7V9h10v2zm0-4H7V5h10v2z"/></symbol>
+    <symbol id="icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol>
+  </svg>
+
   <div class="background-glow top-left"></div>
   <div class="background-glow bottom-right"></div>
 
@@ -24,7 +60,7 @@
     <!-- Header -->
     <header class="remote-header">
       <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-tv"></i></div>
+        <div class="brand-icon"><svg class="icon"><use href="#icon-tv"/></svg></div>
         <div class="brand-text">
           <h1>LG webOS</h1>
           <span class="sub-label">Smart Remote</span>
@@ -37,17 +73,17 @@
           <span id="status-text">Disconnected</span>
         </div>
         <button id="btn-keyboard-scroll" class="icon-btn" title="Smart TV Keyboard">
-          <i class="fa-solid fa-keyboard"></i>
+          <svg class="icon"><use href="#icon-keyboard"/></svg>
         </button>
         <button id="btn-settings-open" class="icon-btn" title="Settings & TV IP">
-          <i class="fa-solid fa-gear"></i>
+          <svg class="icon"><use href="#icon-gear"/></svg>
         </button>
       </div>
     </header>
 
     <!-- Alert / Toast Banner inside Remote UI -->
     <div id="ui-alert" class="ui-alert hidden">
-      <i class="fa-solid fa-circle-info"></i>
+      <svg class="icon"><use href="#icon-info"/></svg>
       <span id="ui-alert-msg">Please accept pairing on your TV</span>
     </div>
 
@@ -55,21 +91,21 @@
     <section class="quick-bar-section">
       <div class="power-group">
         <button id="btn-power-on" class="btn-power on" title="Power On via Wake-on-LAN">
-          <i class="fa-solid fa-power-off"></i>
+          <svg class="icon"><use href="#icon-power"/></svg>
           <span>TURN ON</span>
         </button>
         <button id="btn-power-off" class="btn-power off" title="Turn TV Off">
-          <i class="fa-solid fa-power-off"></i>
+          <svg class="icon"><use href="#icon-power"/></svg>
           <span>POWER OFF</span>
         </button>
       </div>
       <div class="screen-group">
         <button id="btn-screen-toggle" class="btn-pill" title="Turn screen off without stopping audio">
-          <i class="fa-solid fa-display"></i>
+          <svg class="icon"><use href="#icon-screen"/></svg>
           <span>Screen Off</span>
         </button>
         <button id="btn-reconnect" class="btn-pill" title="Reconnect WebSocket">
-          <i class="fa-solid fa-arrows-rotate"></i>
+          <svg class="icon"><use href="#icon-refresh"/></svg>
           <span>Reconnect</span>
         </button>
       </div>
@@ -80,19 +116,19 @@
       <!-- Top Secondary Nav: Home, Back, Menu, Exit -->
       <div class="aux-nav-row">
         <button class="nav-btn" data-key="HOME" id="btn-home" title="Home Dashboard">
-          <i class="fa-solid fa-house"></i>
+          <svg class="icon"><use href="#icon-home"/></svg>
           <span>Home</span>
         </button>
         <button class="nav-btn" data-key="BACK" id="btn-back" title="Back">
-          <i class="fa-solid fa-arrow-left"></i>
+          <svg class="icon"><use href="#icon-back"/></svg>
           <span>Back</span>
         </button>
         <button class="nav-btn" data-key="MENU" id="btn-menu" title="Settings Menu">
-          <i class="fa-solid fa-sliders"></i>
+          <svg class="icon"><use href="#icon-menu"/></svg>
           <span>Menu</span>
         </button>
         <button class="nav-btn" data-key="EXIT" id="btn-exit" title="Exit App">
-          <i class="fa-solid fa-xmark"></i>
+          <svg class="icon"><use href="#icon-close"/></svg>
           <span>Exit</span>
         </button>
       </div>
@@ -101,16 +137,16 @@
       <div class="dpad-container">
         <div class="dpad-wheel">
           <button class="dpad-btn dpad-up" data-key="UP" id="dpad-up" title="Up">
-            <i class="fa-solid fa-chevron-up"></i>
+            <svg class="icon"><use href="#icon-up"/></svg>
           </button>
           <button class="dpad-btn dpad-right" data-key="RIGHT" id="dpad-right" title="Right">
-            <i class="fa-solid fa-chevron-right"></i>
+            <svg class="icon"><use href="#icon-right"/></svg>
           </button>
           <button class="dpad-btn dpad-down" data-key="DOWN" id="dpad-down" title="Down">
-            <i class="fa-solid fa-chevron-down"></i>
+            <svg class="icon"><use href="#icon-down"/></svg>
           </button>
           <button class="dpad-btn dpad-left" data-key="LEFT" id="dpad-left" title="Left">
-            <i class="fa-solid fa-chevron-left"></i>
+            <svg class="icon"><use href="#icon-left"/></svg>
           </button>
           <button class="dpad-center" data-key="ENTER" id="dpad-ok" title="OK / Enter">
             <span>OK</span>
@@ -122,62 +158,62 @@
       <div class="rockers-row">
         <!-- Volume Column -->
         <div class="rocker-card">
-          <div class="rocker-label"><i class="fa-solid fa-volume-high"></i> VOL</div>
+          <div class="rocker-label"><svg class="icon"><use href="#icon-vol-high"/></svg> VOL</div>
           <button class="rocker-btn" id="btn-vol-up" title="Volume Up">
-            <i class="fa-solid fa-plus"></i>
+            <svg class="icon"><use href="#icon-plus"/></svg>
           </button>
           <div class="volume-level-display" id="vol-display">--</div>
           <button class="rocker-btn" id="btn-vol-down" title="Volume Down">
-            <i class="fa-solid fa-minus"></i>
+            <svg class="icon"><use href="#icon-minus"/></svg>
           </button>
         </div>
 
         <!-- Center Mute / Info -->
         <div class="center-controls">
           <button class="circle-btn mute-btn" id="btn-mute" title="Toggle Mute">
-            <i class="fa-solid fa-volume-xmark" id="mute-icon"></i>
+            <svg class="icon" id="mute-icon"><use href="#icon-mute"/></svg>
           </button>
           <button class="circle-btn" data-key="INFO" id="btn-info" title="TV Info / Banner">
-            <i class="fa-solid fa-circle-info"></i>
+            <svg class="icon"><use href="#icon-info"/></svg>
           </button>
         </div>
 
         <!-- Channel Column -->
         <div class="rocker-card">
-          <div class="rocker-label"><i class="fa-solid fa-tv"></i> CH</div>
+          <div class="rocker-label"><svg class="icon"><use href="#icon-tv"/></svg> CH</div>
           <button class="rocker-btn" id="btn-ch-up" title="Channel Up">
-            <i class="fa-solid fa-chevron-up"></i>
+            <svg class="icon"><use href="#icon-up"/></svg>
           </button>
-          <div class="ch-indicator"><i class="fa-solid fa-hashtag"></i></div>
+          <div class="ch-indicator">#</div>
           <button class="rocker-btn" id="btn-ch-down" title="Channel Down">
-            <i class="fa-solid fa-chevron-down"></i>
+            <svg class="icon"><use href="#icon-down"/></svg>
           </button>
         </div>
       </div>
 
       <!-- Volume Slider -->
       <div class="slider-box">
-        <i class="fa-solid fa-volume-low"></i>
+        <svg class="icon"><use href="#icon-vol-low"/></svg>
         <input type="range" id="vol-slider" min="0" max="100" value="20" class="volume-slider" title="Set Volume">
-        <i class="fa-solid fa-volume-high"></i>
+        <svg class="icon"><use href="#icon-vol-high"/></svg>
       </div>
 
       <!-- Media Controls -->
       <div class="media-row">
         <button class="media-btn" id="btn-rewind" title="Rewind">
-          <i class="fa-solid fa-backward"></i>
+          <svg class="icon"><use href="#icon-rewind"/></svg>
         </button>
         <button class="media-btn" id="btn-play" title="Play">
-          <i class="fa-solid fa-play"></i>
+          <svg class="icon"><use href="#icon-play"/></svg>
         </button>
         <button class="media-btn" id="btn-pause" title="Pause">
-          <i class="fa-solid fa-pause"></i>
+          <svg class="icon"><use href="#icon-pause"/></svg>
         </button>
         <button class="media-btn" id="btn-stop" title="Stop">
-          <i class="fa-solid fa-stop"></i>
+          <svg class="icon"><use href="#icon-stop"/></svg>
         </button>
         <button class="media-btn" id="btn-ff" title="Fast Forward">
-          <i class="fa-solid fa-forward"></i>
+          <svg class="icon"><use href="#icon-forward"/></svg>
         </button>
       </div>
 
@@ -192,31 +228,31 @@
       <!-- Quick Apps Grid -->
       <section class="section-container">
         <div class="section-title">
-          <i class="fa-solid fa-shapes"></i> Quick Apps & Inputs
+          <svg class="icon"><use href="#icon-apps"/></svg> Quick Apps & Inputs
         </div>
         <div class="apps-grid">
           <button class="app-card" data-app="youtube.leanback.v4" title="YouTube">
-            <div class="app-icon yt"><i class="fa-brands fa-youtube"></i></div>
+            <div class="app-icon yt"><svg class="icon"><use href="#icon-youtube"/></svg></div>
             <span>YouTube</span>
           </button>
           <button class="app-card" data-app="netflix" title="Netflix">
-            <div class="app-icon nfx"><i class="fa-solid fa-n"></i></div>
+            <div class="app-icon nfx"><svg class="icon"><use href="#icon-netflix"/></svg></div>
             <span>Netflix</span>
           </button>
           <button class="app-card" data-app="amazon" title="Prime Video">
-            <div class="app-icon prm"><i class="fa-brands fa-amazon"></i></div>
+            <div class="app-icon prm"><svg class="icon"><use href="#icon-prime"/></svg></div>
             <span>Prime</span>
           </button>
           <button class="app-card" data-app="com.webos.app.browser" title="Web Browser">
-            <div class="app-icon web"><i class="fa-solid fa-globe"></i></div>
+            <div class="app-icon web"><svg class="icon"><use href="#icon-globe"/></svg></div>
             <span>Browser</span>
           </button>
           <button class="app-card" data-input="HDMI_1" title="HDMI 1">
-            <div class="app-icon hdmi"><i class="fa-solid fa-plug"></i></div>
+            <div class="app-icon hdmi"><svg class="icon"><use href="#icon-plug"/></svg></div>
             <span>HDMI 1</span>
           </button>
           <button class="app-card" data-input="HDMI_2" title="HDMI 2">
-            <div class="app-icon hdmi"><i class="fa-solid fa-plug"></i></div>
+            <div class="app-icon hdmi"><svg class="icon"><use href="#icon-plug"/></svg></div>
             <span>HDMI 2</span>
           </button>
         </div>
@@ -224,13 +260,13 @@
 
       <!-- Installed TV Apps (Live from TV) -->
       <details class="numpad-accordion" id="installed-apps-accordion">
-        <summary><i class="fa-solid fa-layer-group"></i> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
+        <summary><svg class="icon"><use href="#icon-apps"/></svg> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
         <div class="apps-grid" id="installed-apps-grid" style="margin-top: 12px;"></div>
       </details>
 
       <!-- Number Pad Toggle -->
       <details class="numpad-accordion">
-        <summary><i class="fa-solid fa-calculator"></i> Number Pad & Special Keys</summary>
+        <summary><svg class="icon"><use href="#icon-calc"/></svg> Number Pad & Special Keys</summary>
         <div class="numpad-grid">
           <button class="num-btn" data-key="1">1</button>
           <button class="num-btn" data-key="2">2</button>
@@ -250,13 +286,13 @@
       <!-- Smart TV Keyboard & Text Typing -->
       <section class="section-container" id="keyboard-section">
         <div class="section-title">
-          <i class="fa-solid fa-keyboard"></i> Smart TV Keyboard & Text Input
+          <svg class="icon"><use href="#icon-keyboard"/></svg> Smart TV Keyboard & Text Input
         </div>
         <div class="keyboard-card">
           <div class="kb-input-wrap">
             <input type="text" id="kb-input" placeholder="Type here to type on TV..." autocomplete="off">
             <button id="btn-kb-send" class="btn-primary-sm" title="Send text to TV">
-              <i class="fa-solid fa-paper-plane"></i> Send
+              <svg class="icon"><use href="#icon-send"/></svg> Send
             </button>
             <button id="btn-kb-enter" class="btn-secondary-sm" title="Send Enter Key">
               ↵ Enter
@@ -275,7 +311,7 @@
 
           <!-- Virtual QWERTY Keypad Accordion -->
           <details class="qwerty-drawer" id="qwerty-drawer">
-            <summary><i class="fa-solid fa-table-cells"></i> On-Screen Virtual Keypad</summary>
+            <summary><svg class="icon"><use href="#icon-keyboard"/></svg> On-Screen Virtual Keypad</summary>
             <div class="qwerty-grid">
               <!-- Numbers Row -->
               <div class="qwerty-row">
@@ -342,11 +378,11 @@
       <!-- TV Toast Messenger -->
       <section class="section-container">
         <div class="section-title">
-          <i class="fa-solid fa-message"></i> Send On-Screen Alert
+          <svg class="icon"><use href="#icon-msg"/></svg> Send On-Screen Alert
         </div>
         <form id="toast-form" class="toast-box">
           <input type="text" id="toast-input" placeholder="Type a message to show on TV..." required>
-          <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+          <button type="submit" class="btn-send"><svg class="icon"><use href="#icon-send"/></svg></button>
         </form>
       </section>
     </main>
@@ -361,8 +397,8 @@
   <div id="settings-modal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h2><i class="fa-solid fa-gear"></i> TV Connection Settings</h2>
-        <button id="btn-settings-close" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+        <h2><svg class="icon"><use href="#icon-gear"/></svg> TV Connection Settings</h2>
+        <button id="btn-settings-close" class="modal-close"><svg class="icon"><use href="#icon-close"/></svg></button>
       </div>
       <form id="settings-form">
         <div class="form-group">
@@ -378,7 +414,7 @@
         </div>
 
         <div class="modal-actions">
-          <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save & Connect</button>
+          <button type="submit" class="btn-save"><svg class="icon"><use href="#icon-save"/></svg> Save & Connect</button>
         </div>
       </form>
     </div>
