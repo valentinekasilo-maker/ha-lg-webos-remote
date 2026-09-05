@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "LG webOS Smart Remote Setup",
+        "description": "Connect to your LG webOS Smart TV. Make sure the TV is powered on and connected to your local network.",
+        "data": {
+          "host": "TV IP Address",
+          "mac": "TV MAC Address (for Wake-on-LAN)",
+          "name": "Device Name"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the TV. Check the IP address and make sure the TV is on.",
+      "invalid_auth": "Pairing was rejected on the TV screen."
+    },
+    "abort": {
+      "already_configured": "This LG Smart TV is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "LG webOS Smart Remote Options",
+        "data": {
+          "host": "TV IP Address",
+          "mac": "TV MAC Address",
+          "broadcast_address": "Wake-on-LAN Broadcast IP"
+        }
+      }
+    }
+  }
+}

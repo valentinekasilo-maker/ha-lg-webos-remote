@@ -1,0 +1,61 @@
+send_button:
+  name: Send Remote Button
+  description: Sends a discrete remote button press to the LG TV (e.g. UP, DOWN, LEFT, RIGHT, ENTER, BACK, HOME, MENU, EXIT, RED, GREEN, YELLOW, BLUE).
+  fields:
+    button:
+      name: Button Name
+      description: The name of the remote button to press.
+      required: true
+      example: "ENTER"
+      selector:
+        text:
+
+send_text:
+  name: Send Keyboard Text
+  description: Types text directly into the active TV input field or search bar.
+  fields:
+    text:
+      name: Text
+      description: The string to type on TV.
+      required: true
+      example: "Interstellar"
+      selector:
+        text:
+
+show_toast:
+  name: Show On-Screen Notification
+  description: Displays a toast notification message on the TV screen.
+  fields:
+    message:
+      name: Message
+      description: Text message to display on the TV.
+      required: true
+      example: "Front Gate Opened"
+      selector:
+        text:
+    icon:
+      name: Icon Data
+      description: Optional icon data or image URL.
+      required: false
+      selector:
+        text:
+
+screen_off:
+  name: Turn Screen Off
+  description: Blanks the TV screen while keeping audio/music streaming.
+
+screen_on:
+  name: Turn Screen On
+  description: Turns the TV screen back on.
+
+open_youtube:
+  name: Open YouTube Video
+  description: Launches the YouTube app directly to a specific video ID or URL.
+  fields:
+    video_id:
+      name: Video ID or URL
+      description: YouTube URL or 11-character video ID.
+      required: false
+      example: "dQw4w9WgXcQ"
+      selector:
+        text:
