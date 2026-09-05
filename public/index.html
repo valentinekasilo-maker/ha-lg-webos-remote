@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LG webOS Smart Remote</title>
+  <meta name="description" content="Sleek, real-time web controller and remote for LG webOS Smart TVs">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow top-left"></div>
+  <div class="background-glow bottom-right"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="remote-header">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-tv"></i></div>
+        <div class="brand-text">
+          <h1>LG webOS</h1>
+          <span class="sub-label">Smart Remote</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="status-badge" class="status-badge disconnected" title="TV Connection Status">
+          <span class="status-dot"></span>
+          <span id="status-text">Disconnected</span>
+        </div>
+        <button id="btn-keyboard-scroll" class="icon-btn" title="Smart TV Keyboard">
+          <i class="fa-solid fa-keyboard"></i>
+        </button>
+        <button id="btn-settings-open" class="icon-btn" title="Settings & TV IP">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Alert / Toast Banner inside Remote UI -->
+    <div id="ui-alert" class="ui-alert hidden">
+      <i class="fa-solid fa-circle-info"></i>
+      <span id="ui-alert-msg">Please accept pairing on your TV</span>
+    </div>
+
+    <!-- Power & Quick Bar -->
+    <section class="quick-bar-section">
+      <div class="power-group">
+        <button id="btn-power-on" class="btn-power on" title="Power On via Wake-on-LAN">
+          <i class="fa-solid fa-power-off"></i>
+          <span>TURN ON</span>
+        </button>
+        <button id="btn-power-off" class="btn-power off" title="Turn TV Off">
+          <i class="fa-solid fa-power-off"></i>
+          <span>POWER OFF</span>
+        </button>
+      </div>
+      <div class="screen-group">
+        <button id="btn-screen-toggle" class="btn-pill" title="Turn screen off without stopping audio">
+          <i class="fa-solid fa-display"></i>
+          <span>Screen Off</span>
+        </button>
+        <button id="btn-reconnect" class="btn-pill" title="Reconnect WebSocket">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Reconnect</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Remote Body -->
+    <main class="remote-body">
+      <!-- Top Secondary Nav: Home, Back, Menu, Exit -->
+      <div class="aux-nav-row">
+        <button class="nav-btn" data-key="HOME" id="btn-home" title="Home Dashboard">
+          <i class="fa-solid fa-house"></i>
+          <span>Home</span>
+        </button>
+        <button class="nav-btn" data-key="BACK" id="btn-back" title="Back">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back</span>
+        </button>
+        <button class="nav-btn" data-key="MENU" id="btn-menu" title="Settings Menu">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Menu</span>
+        </button>
+        <button class="nav-btn" data-key="EXIT" id="btn-exit" title="Exit App">
+          <i class="fa-solid fa-xmark"></i>
+          <span>Exit</span>
+        </button>
+      </div>
+
+      <!-- D-PAD Navigation Wheel -->
+      <div class="dpad-container">
+        <div class="dpad-wheel">
+          <button class="dpad-btn dpad-up" data-key="UP" id="dpad-up" title="Up">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <button class="dpad-btn dpad-right" data-key="RIGHT" id="dpad-right" title="Right">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <button class="dpad-btn dpad-down" data-key="DOWN" id="dpad-down" title="Down">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <button class="dpad-btn dpad-left" data-key="LEFT" id="dpad-left" title="Left">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button class="dpad-center" data-key="ENTER" id="dpad-ok" title="OK / Enter">
+            <span>OK</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Volume & Channel Rockers -->
+      <div class="rockers-row">
+        <!-- Volume Column -->
+        <div class="rocker-card">
+          <div class="rocker-label"><i class="fa-solid fa-volume-high"></i> VOL</div>
+          <button class="rocker-btn" id="btn-vol-up" title="Volume Up">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <div class="volume-level-display" id="vol-display">--</div>
+          <button class="rocker-btn" id="btn-vol-down" title="Volume Down">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+        </div>
+
+        <!-- Center Mute / Info -->
+        <div class="center-controls">
+          <button class="circle-btn mute-btn" id="btn-mute" title="Toggle Mute">
+            <i class="fa-solid fa-volume-xmark" id="mute-icon"></i>
+          </button>
+          <button class="circle-btn" data-key="INFO" id="btn-info" title="TV Info / Banner">
+            <i class="fa-solid fa-circle-info"></i>
+          </button>
+        </div>
+
+        <!-- Channel Column -->
+        <div class="rocker-card">
+          <div class="rocker-label"><i class="fa-solid fa-tv"></i> CH</div>
+          <button class="rocker-btn" id="btn-ch-up" title="Channel Up">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <div class="ch-indicator"><i class="fa-solid fa-hashtag"></i></div>
+          <button class="rocker-btn" id="btn-ch-down" title="Channel Down">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Volume Slider -->
+      <div class="slider-box">
+        <i class="fa-solid fa-volume-low"></i>
+        <input type="range" id="vol-slider" min="0" max="100" value="20" class="volume-slider" title="Set Volume">
+        <i class="fa-solid fa-volume-high"></i>
+      </div>
+
+      <!-- Media Controls -->
+      <div class="media-row">
+        <button class="media-btn" id="btn-rewind" title="Rewind">
+          <i class="fa-solid fa-backward"></i>
+        </button>
+        <button class="media-btn" id="btn-play" title="Play">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <button class="media-btn" id="btn-pause" title="Pause">
+          <i class="fa-solid fa-pause"></i>
+        </button>
+        <button class="media-btn" id="btn-stop" title="Stop">
+          <i class="fa-solid fa-stop"></i>
+        </button>
+        <button class="media-btn" id="btn-ff" title="Fast Forward">
+          <i class="fa-solid fa-forward"></i>
+        </button>
+      </div>
+
+      <!-- Color Buttons -->
+      <div class="color-buttons-row">
+        <button class="color-btn red" data-key="RED" title="Red"></button>
+        <button class="color-btn green" data-key="GREEN" title="Green"></button>
+        <button class="color-btn yellow" data-key="YELLOW" title="Yellow"></button>
+        <button class="color-btn blue" data-key="BLUE" title="Blue"></button>
+      </div>
+
+      <!-- Quick Apps Grid -->
+      <section class="section-container">
+        <div class="section-title">
+          <i class="fa-solid fa-shapes"></i> Quick Apps & Inputs
+        </div>
+        <div class="apps-grid">
+          <button class="app-card" data-app="youtube.leanback.v4" title="YouTube">
+            <div class="app-icon yt"><i class="fa-brands fa-youtube"></i></div>
+            <span>YouTube</span>
+          </button>
+          <button class="app-card" data-app="netflix" title="Netflix">
+            <div class="app-icon nfx"><i class="fa-solid fa-n"></i></div>
+            <span>Netflix</span>
+          </button>
+          <button class="app-card" data-app="amazon" title="Prime Video">
+            <div class="app-icon prm"><i class="fa-brands fa-amazon"></i></div>
+            <span>Prime</span>
+          </button>
+          <button class="app-card" data-app="com.webos.app.browser" title="Web Browser">
+            <div class="app-icon web"><i class="fa-solid fa-globe"></i></div>
+            <span>Browser</span>
+          </button>
+          <button class="app-card" data-input="HDMI_1" title="HDMI 1">
+            <div class="app-icon hdmi"><i class="fa-solid fa-plug"></i></div>
+            <span>HDMI 1</span>
+          </button>
+          <button class="app-card" data-input="HDMI_2" title="HDMI 2">
+            <div class="app-icon hdmi"><i class="fa-solid fa-plug"></i></div>
+            <span>HDMI 2</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Installed TV Apps (Live from TV) -->
+      <details class="numpad-accordion" id="installed-apps-accordion">
+        <summary><i class="fa-solid fa-layer-group"></i> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
+        <div class="apps-grid" id="installed-apps-grid" style="margin-top: 12px;"></div>
+      </details>
+
+      <!-- Number Pad Toggle -->
+      <details class="numpad-accordion">
+        <summary><i class="fa-solid fa-calculator"></i> Number Pad & Special Keys</summary>
+        <div class="numpad-grid">
+          <button class="num-btn" data-key="1">1</button>
+          <button class="num-btn" data-key="2">2</button>
+          <button class="num-btn" data-key="3">3</button>
+          <button class="num-btn" data-key="4">4</button>
+          <button class="num-btn" data-key="5">5</button>
+          <button class="num-btn" data-key="6">6</button>
+          <button class="num-btn" data-key="7">7</button>
+          <button class="num-btn" data-key="8">8</button>
+          <button class="num-btn" data-key="9">9</button>
+          <button class="num-btn" data-key="CC">CC</button>
+          <button class="num-btn" data-key="0">0</button>
+          <button class="num-btn" data-key="LIST">LIST</button>
+        </div>
+      </details>
+
+      <!-- Smart TV Keyboard & Text Typing -->
+      <section class="section-container" id="keyboard-section">
+        <div class="section-title">
+          <i class="fa-solid fa-keyboard"></i> Smart TV Keyboard & Text Input
+        </div>
+        <div class="keyboard-card">
+          <div class="kb-input-wrap">
+            <input type="text" id="kb-input" placeholder="Type here to type on TV..." autocomplete="off">
+            <button id="btn-kb-send" class="btn-primary-sm" title="Send text to TV">
+              <i class="fa-solid fa-paper-plane"></i> Send
+            </button>
+            <button id="btn-kb-enter" class="btn-secondary-sm" title="Send Enter Key">
+              ↵ Enter
+            </button>
+          </div>
+
+          <div class="kb-quick-actions">
+            <button class="kb-act-btn" id="btn-kb-backspace" title="Backspace">⌫ Del</button>
+            <button class="kb-act-btn" id="btn-kb-space" title="Space">␣ Space</button>
+            <button class="kb-act-btn" id="btn-kb-clear" title="Clear input">Clear</button>
+            <button class="kb-act-btn" id="btn-kb-paste" title="Paste from clipboard">📋 Paste</button>
+            <label class="kb-toggle-label" title="Send characters as you type">
+              <input type="checkbox" id="kb-live-mode"> Live Type
+            </label>
+          </div>
+
+          <!-- Virtual QWERTY Keypad Accordion -->
+          <details class="qwerty-drawer" id="qwerty-drawer">
+            <summary><i class="fa-solid fa-table-cells"></i> On-Screen Virtual Keypad</summary>
+            <div class="qwerty-grid">
+              <!-- Numbers Row -->
+              <div class="qwerty-row">
+                <button class="key-btn" data-char="1">1</button>
+                <button class="key-btn" data-char="2">2</button>
+                <button class="key-btn" data-char="3">3</button>
+                <button class="key-btn" data-char="4">4</button>
+                <button class="key-btn" data-char="5">5</button>
+                <button class="key-btn" data-char="6">6</button>
+                <button class="key-btn" data-char="7">7</button>
+                <button class="key-btn" data-char="8">8</button>
+                <button class="key-btn" data-char="9">9</button>
+                <button class="key-btn" data-char="0">0</button>
+              </div>
+              <!-- QWERTY Row -->
+              <div class="qwerty-row">
+                <button class="key-btn" data-char="q">q</button>
+                <button class="key-btn" data-char="w">w</button>
+                <button class="key-btn" data-char="e">e</button>
+                <button class="key-btn" data-char="r">r</button>
+                <button class="key-btn" data-char="t">t</button>
+                <button class="key-btn" data-char="y">y</button>
+                <button class="key-btn" data-char="u">u</button>
+                <button class="key-btn" data-char="i">i</button>
+                <button class="key-btn" data-char="o">o</button>
+                <button class="key-btn" data-char="p">p</button>
+              </div>
+              <!-- ASDF Row -->
+              <div class="qwerty-row">
+                <button class="key-btn" data-char="a">a</button>
+                <button class="key-btn" data-char="s">s</button>
+                <button class="key-btn" data-char="d">d</button>
+                <button class="key-btn" data-char="f">f</button>
+                <button class="key-btn" data-char="g">g</button>
+                <button class="key-btn" data-char="h">h</button>
+                <button class="key-btn" data-char="j">j</button>
+                <button class="key-btn" data-char="k">k</button>
+                <button class="key-btn" data-char="l">l</button>
+              </div>
+              <!-- ZXCV Row -->
+              <div class="qwerty-row">
+                <button class="key-btn" data-char="z">z</button>
+                <button class="key-btn" data-char="x">x</button>
+                <button class="key-btn" data-char="c">c</button>
+                <button class="key-btn" data-char="v">v</button>
+                <button class="key-btn" data-char="b">b</button>
+                <button class="key-btn" data-char="n">n</button>
+                <button class="key-btn" data-char="m">m</button>
+                <button class="key-btn special del" id="btn-key-del">⌫</button>
+              </div>
+              <!-- Bottom Row: @ . Space - Enter -->
+              <div class="qwerty-row">
+                <button class="key-btn special" data-char="@">@</button>
+                <button class="key-btn special" data-char=".">.</button>
+                <button class="key-btn space" data-char=" ">SPACE</button>
+                <button class="key-btn special" data-char="-">-</button>
+                <button class="key-btn special enter" id="btn-key-enter">↵</button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- TV Toast Messenger -->
+      <section class="section-container">
+        <div class="section-title">
+          <i class="fa-solid fa-message"></i> Send On-Screen Alert
+        </div>
+        <form id="toast-form" class="toast-box">
+          <input type="text" id="toast-input" placeholder="Type a message to show on TV..." required>
+          <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="remote-footer">
+      <span>Connected to IP: <strong id="footer-ip">192.168.1.100</strong></span>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-gear"></i> TV Connection Settings</h2>
+        <button id="btn-settings-close" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="tv-ip-input">LG TV IP Address</label>
+          <input type="text" id="tv-ip-input" placeholder="e.g. 192.168.1.150" required>
+          <small>Find this on your TV in Settings &gt; Network &gt; Wi-Fi / Ethernet Connection.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="tv-mac-input">TV MAC Address (for Turn On / WoL)</label>
+          <input type="text" id="tv-mac-input" placeholder="e.g. 14:C9:13:XX:XX:XX">
+          <small>Required to turn TV ON from standby. Also ensure "Mobile TV On" is ON in TV settings.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save & Connect</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Socket.io client script & app logic -->
+  <script src="socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "lg-webos-controller",
+  "version": "1.0.0",
+  "description": "Full-featured Node.js controller, REST API, and Web Remote for LG webOS Smart TVs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "cli": "node cli.js",
+    "tunnel": "lt --port 8080",
+    "tunnel:ngrok": "node tunnel.js"
+  },
+  "keywords": [
+    "lg",
+    "webos",
+    "smart-tv",
+    "remote-control",
+    "ssap",
+    "iot",
+    "wake-on-lan"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "lgtv2": "^1.4.3",
+    "socket.io": "^4.8.1",
+    "wake_on_lan": "^1.0.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "localtunnel": "^2.0.2"
+  }
+}
