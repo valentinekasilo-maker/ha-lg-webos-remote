@@ -19,6 +19,10 @@ class LGTVController extends EventEmitter {
       currentApp: null,
       installedApps: []
     };
+    // Default error listener to prevent uncaught EventEmitter error crash
+    this.on('error', (err) => {
+      // Safe no-op / warning
+    });
   }
 
   /**

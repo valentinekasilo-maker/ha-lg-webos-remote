@@ -104,6 +104,24 @@ BUTTON_DESCRIPTIONS: list[ButtonDescription] = [
         icon="mdi:close-circle-outline",
         action=lambda client: client.send_button("EXIT"),
     ),
+    ButtonDescription(
+        key="nav_info",
+        name="Info",
+        icon="mdi:information-outline",
+        action=lambda client: client.send_button("INFO"),
+    ),
+    ButtonDescription(
+        key="nav_guide",
+        name="Guide",
+        icon="mdi:television-guide",
+        action=lambda client: client.send_button("GUIDE"),
+    ),
+    ButtonDescription(
+        key="nav_cc",
+        name="Closed Captions",
+        icon="mdi:closed-caption",
+        action=lambda client: client.send_button("CC"),
+    ),
     # Volume & Mute
     ButtonDescription(
         key="vol_up",
@@ -135,6 +153,73 @@ BUTTON_DESCRIPTIONS: list[ButtonDescription] = [
         name="Channel Down",
         icon="mdi:arrow-down-drop-circle-outline",
         action=lambda client: client.channel_down(),
+    ),
+    # Number Pad (0-9, Dash)
+    ButtonDescription(
+        key="num_0",
+        name="0",
+        icon="mdi:numeric-0",
+        action=lambda client: client.send_button("0"),
+    ),
+    ButtonDescription(
+        key="num_1",
+        name="1",
+        icon="mdi:numeric-1",
+        action=lambda client: client.send_button("1"),
+    ),
+    ButtonDescription(
+        key="num_2",
+        name="2",
+        icon="mdi:numeric-2",
+        action=lambda client: client.send_button("2"),
+    ),
+    ButtonDescription(
+        key="num_3",
+        name="3",
+        icon="mdi:numeric-3",
+        action=lambda client: client.send_button("3"),
+    ),
+    ButtonDescription(
+        key="num_4",
+        name="4",
+        icon="mdi:numeric-4",
+        action=lambda client: client.send_button("4"),
+    ),
+    ButtonDescription(
+        key="num_5",
+        name="5",
+        icon="mdi:numeric-5",
+        action=lambda client: client.send_button("5"),
+    ),
+    ButtonDescription(
+        key="num_6",
+        name="6",
+        icon="mdi:numeric-6",
+        action=lambda client: client.send_button("6"),
+    ),
+    ButtonDescription(
+        key="num_7",
+        name="7",
+        icon="mdi:numeric-7",
+        action=lambda client: client.send_button("7"),
+    ),
+    ButtonDescription(
+        key="num_8",
+        name="8",
+        icon="mdi:numeric-8",
+        action=lambda client: client.send_button("8"),
+    ),
+    ButtonDescription(
+        key="num_9",
+        name="9",
+        icon="mdi:numeric-9",
+        action=lambda client: client.send_button("9"),
+    ),
+    ButtonDescription(
+        key="num_dash",
+        name="Dash (-)",
+        icon="mdi:minus",
+        action=lambda client: client.send_button("DASH"),
     ),
     # 1-Tap Quick Apps
     ButtonDescription(
@@ -229,7 +314,13 @@ BUTTON_DESCRIPTIONS: list[ButtonDescription] = [
         icon="mdi:circle",
         action=lambda client: client.send_button("BLUE"),
     ),
-    # HDMI Inputs
+    # HDMI Inputs & Source Switch
+    ButtonDescription(
+        key="input_source",
+        name="Input / Source",
+        icon="mdi:video-input-hdmi",
+        action=lambda client: client.send_button("INPUT"),
+    ),
     ButtonDescription(
         key="hdmi_1",
         name="HDMI 1",

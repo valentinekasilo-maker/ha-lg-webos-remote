@@ -271,6 +271,21 @@ class HomeAssistantBridge {
       { id: 'vol_mute', name: 'Mute Toggle', icon: 'mdi:volume-mute' },
       { id: 'chan_up', name: 'Channel Up', icon: 'mdi:arrow-up-drop-circle-outline' },
       { id: 'chan_down', name: 'Channel Down', icon: 'mdi:arrow-down-drop-circle-outline' },
+      { id: 'num_0', name: '0', icon: 'mdi:numeric-0' },
+      { id: 'num_1', name: '1', icon: 'mdi:numeric-1' },
+      { id: 'num_2', name: '2', icon: 'mdi:numeric-2' },
+      { id: 'num_3', name: '3', icon: 'mdi:numeric-3' },
+      { id: 'num_4', name: '4', icon: 'mdi:numeric-4' },
+      { id: 'num_5', name: '5', icon: 'mdi:numeric-5' },
+      { id: 'num_6', name: '6', icon: 'mdi:numeric-6' },
+      { id: 'num_7', name: '7', icon: 'mdi:numeric-7' },
+      { id: 'num_8', name: '8', icon: 'mdi:numeric-8' },
+      { id: 'num_9', name: '9', icon: 'mdi:numeric-9' },
+      { id: 'num_dash', name: 'Dash (-)', icon: 'mdi:minus' },
+      { id: 'nav_info', name: 'Info', icon: 'mdi:information-outline' },
+      { id: 'nav_guide', name: 'Guide', icon: 'mdi:television-guide' },
+      { id: 'nav_cc', name: 'Closed Captions', icon: 'mdi:closed-caption' },
+      { id: 'input_source', name: 'Input / Source', icon: 'mdi:video-input-hdmi' },
       { id: 'media_play', name: 'Play', icon: 'mdi:play' },
       { id: 'media_pause', name: 'Pause', icon: 'mdi:pause' },
       { id: 'media_stop', name: 'Stop', icon: 'mdi:stop' },
@@ -514,6 +529,21 @@ class HomeAssistantBridge {
         else if (ent.includes('hdmi_1')) await tv.setInput('HDMI_1');
         else if (ent.includes('hdmi_2')) await tv.setInput('HDMI_2');
         else if (ent.includes('hdmi_3')) await tv.setInput('HDMI_3');
+        else if (ent.includes('input_source') || ent.includes('input')) await tv.sendButton('INPUT');
+        else if (ent.includes('nav_info') || ent.includes('_info')) await tv.sendButton('INFO');
+        else if (ent.includes('nav_guide') || ent.includes('_guide')) await tv.sendButton('GUIDE');
+        else if (ent.includes('nav_cc') || ent.includes('_cc')) await tv.sendButton('CC');
+        else if (ent.includes('num_dash') || ent.includes('_dash')) await tv.sendButton('DASH');
+        else if (ent.includes('num_0') || ent.endsWith('_0')) await tv.sendButton('0');
+        else if (ent.includes('num_1') || ent.endsWith('_1')) await tv.sendButton('1');
+        else if (ent.includes('num_2') || ent.endsWith('_2')) await tv.sendButton('2');
+        else if (ent.includes('num_3') || ent.endsWith('_3')) await tv.sendButton('3');
+        else if (ent.includes('num_4') || ent.endsWith('_4')) await tv.sendButton('4');
+        else if (ent.includes('num_5') || ent.endsWith('_5')) await tv.sendButton('5');
+        else if (ent.includes('num_6') || ent.endsWith('_6')) await tv.sendButton('6');
+        else if (ent.includes('num_7') || ent.endsWith('_7')) await tv.sendButton('7');
+        else if (ent.includes('num_8') || ent.endsWith('_8')) await tv.sendButton('8');
+        else if (ent.includes('num_9') || ent.endsWith('_9')) await tv.sendButton('9');
         return;
       }
 
