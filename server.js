@@ -437,6 +437,14 @@ tv.on('close', () => {
   io.emit('tv:close');
 });
 
+process.on('uncaughtException', (err) => {
+  console.warn('[Server] Uncaught exception notice:', err.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Server] Unhandled rejection notice:', (reason && reason.message) || reason);
+});
+
 // Start Server & Connect to TV
 const PORT = getConfig().webServerPort || 8080;
 server.listen(PORT, '0.0.0.0', async () => {
