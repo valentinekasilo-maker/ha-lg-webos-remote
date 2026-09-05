@@ -167,14 +167,18 @@ class LGTVController extends EventEmitter {
    * Get or recreate active Pointer Socket for mouse & D-pad key presses
    */
   getPointerSocket() {
-    return new Promise((resolve, reject) => {
-      if (!this.lgtv || !this.isConnected) {
-        return reject(new Error('TV is not connected. Make sure TV is on.'));
-      }
-      if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected) {
-        return resolve(this.pointerSocket);
-      }
+    if (!this.lgtv || !this.isConnected) {
+      return Promise.reject(new Error('TV is not connected. Make sure TV is on.'));
+    }
+    if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected) {
+      return Promise.resolve(this.pointerSocket);
+    }
+    if (this._pointerPromise) {
+      return this._pointerPromise;
+    }
+    this._pointerPromise = new Promise((resolve, reject) => {
       this.lgtv.getSocket('ssap://com.webos.service.networkinput/getPointerInputSocket', (err, sock) => {
+        this._pointerPromise = null;
         if (err) {
           console.warn('[LGTV] Error getting pointer input socket:', err.message);
           return reject(err);
@@ -184,6 +188,7 @@ class LGTVController extends EventEmitter {
         resolve(sock);
       });
     });
+    return this._pointerPromise;
   }
 
   /**
@@ -198,17 +203,19 @@ class LGTVController extends EventEmitter {
   /**
    * Send remote button key press (e.g. 'UP', 'DOWN', 'LEFT', 'RIGHT', 'ENTER', 'BACK', 'HOME', 'MENU', 'EXIT', etc.)
    */
-  async sendButton(name) {
+  sendButton(name) {
     const formattedName = String(name).trim().toUpperCase();
-    console.log(`[LGTV] Sending button: ${formattedName}`);
-    try {
-      const sock = await this.getPointerSocket();
+    if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected) {
+      this.pointerSocket.send('button', { name: formattedName });
+      return Promise.resolve({ success: true, button: formattedName });
+    }
+    return this.getPointerSocket().then((sock) => {
       sock.send('button', { name: formattedName });
       return { success: true, button: formattedName };
-    } catch (err) {
+    }).catch((err) => {
       console.error(`[LGTV] Failed to send button ${formattedName}:`, err.message);
       throw err;
-    }
+    });
   }
 
   /**

@@ -3,9 +3,11 @@ const basePath = window.location.pathname.endsWith('/')
   ? window.location.pathname.slice(0, -1) 
   : window.location.pathname;
 
-// Connect to backend Socket.IO server
+// Connect to backend Socket.IO server with prioritized websocket transport
 const socket = io({
-  path: (basePath ? basePath : '') + '/socket.io'
+  path: (basePath ? basePath : '') + '/socket.io',
+  transports: ['websocket', 'polling'],
+  upgrade: true
 });
 
 // DOM Elements
@@ -184,77 +186,101 @@ async function apiCall(endpoint, method = 'POST', body = null) {
   }
 }
 
-// Send Remote Button (UP, DOWN, LEFT, RIGHT, ENTER, HOME, BACK, etc.)
-function sendKey(key) {
-  haptic();
-  socket.emit('button', key, (response) => {
-    if (response && response.error) {
-      console.warn(`Key ${key} error:`, response.error);
+// High-speed low-latency touch binder (0ms touch delay)
+function bindFastTouch(el, callback) {
+  if (!el) return;
+  let touched = false;
+
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    touched = true;
+    haptic();
+    callback();
+    setTimeout(() => { touched = false; }, 100);
+  }, { passive: false });
+
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!touched) {
+      haptic();
+      callback();
     }
   });
 }
 
+// Send Remote Button (UP, DOWN, LEFT, RIGHT, ENTER, HOME, BACK, etc.)
+function sendKey(key) {
+  socket.emit('button', key);
+}
+
 // --- Event Binding ---
 
-// D-Pad and Buttons with data-key attribute
+// D-Pad and Buttons with data-key attribute (High speed pointerdown)
 document.querySelectorAll('[data-key]').forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    const key = btn.getAttribute('data-key');
-    if (key) sendKey(key);
-  });
+  const key = btn.getAttribute('data-key');
+  if (key) {
+    bindFastTouch(btn, () => sendKey(key));
+  }
 });
 
 // Power On (Wake-on-LAN)
-document.getElementById('btn-power-on').addEventListener('click', async () => {
-  showAlert('📡 Sending Wake-on-LAN packet to turn TV On...', 'info');
-  const res = await apiCall('/api/power/on');
-  if (res && res.error) {
-    showAlert(`❌ ${res.error}`, 'warning');
-  } else {
-    setTimeout(() => hideAlert(), 4000);
-  }
-});
+const btnPowerOn = document.getElementById('btn-power-on');
+if (btnPowerOn) {
+  btnPowerOn.addEventListener('click', async () => {
+    showAlert('📡 Sending Wake-on-LAN packet to turn TV On...', 'info');
+    const res = await apiCall('/api/power/on');
+    if (res && res.error) {
+      showAlert(`❌ ${res.error}`, 'warning');
+    } else {
+      setTimeout(() => hideAlert(), 4000);
+    }
+  });
+}
 
 // Power Off
-document.getElementById('btn-power-off').addEventListener('click', () => {
-  if (confirm('Power off the TV?')) {
-    apiCall('/api/power/off');
-  }
-});
+const btnPowerOff = document.getElementById('btn-power-off');
+if (btnPowerOff) {
+  btnPowerOff.addEventListener('click', () => {
+    if (confirm('Power off the TV?')) {
+      apiCall('/api/power/off');
+    }
+  });
+}
 
 // Screen Off/On Toggle
-document.getElementById('btn-screen-toggle').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-screen-toggle');
-  if (!isScreenOff) {
-    await apiCall('/api/power/screen-off');
-    isScreenOff = true;
-    btn.innerHTML = '<i class="fa-solid fa-display"></i><span>Screen On</span>';
-  } else {
-    await apiCall('/api/power/screen-on');
-    isScreenOff = false;
-    btn.innerHTML = '<i class="fa-solid fa-display"></i><span>Screen Off</span>';
-  }
-});
+const btnScreenToggle = document.getElementById('btn-screen-toggle');
+if (btnScreenToggle) {
+  btnScreenToggle.addEventListener('click', async () => {
+    if (!isScreenOff) {
+      await apiCall('/api/power/screen-off');
+      isScreenOff = true;
+      btnScreenToggle.innerHTML = '<i class="fa-solid fa-display"></i><span>Screen On</span>';
+    } else {
+      await apiCall('/api/power/screen-on');
+      isScreenOff = false;
+      btnScreenToggle.innerHTML = '<i class="fa-solid fa-display"></i><span>Screen Off</span>';
+    }
+  });
+}
 
 // Reconnect
-document.getElementById('btn-reconnect').addEventListener('click', () => {
-  apiCall('/api/connect');
-});
+const btnReconnect = document.getElementById('btn-reconnect');
+if (btnReconnect) {
+  btnReconnect.addEventListener('click', () => {
+    apiCall('/api/connect');
+  });
+}
 
-// Volume Up / Down
-document.getElementById('btn-vol-up').addEventListener('click', () => {
-  apiCall('/api/volume', 'POST', { action: 'up' });
-});
+// Volume Up / Down via instant WebSocket
+const btnVolUp = document.getElementById('btn-vol-up');
+if (btnVolUp) bindFastTouch(btnVolUp, () => socket.emit('volume', { action: 'up' }));
 
-document.getElementById('btn-vol-down').addEventListener('click', () => {
-  apiCall('/api/volume', 'POST', { action: 'down' });
-});
+const btnVolDown = document.getElementById('btn-vol-down');
+if (btnVolDown) bindFastTouch(btnVolDown, () => socket.emit('volume', { action: 'down' }));
 
-// Mute Toggle
-muteBtn.addEventListener('click', () => {
-  apiCall('/api/volume', 'POST', { action: 'toggleMute' });
-});
+// Mute Toggle via instant WebSocket
+if (muteBtn) bindFastTouch(muteBtn, () => socket.emit('volume', { action: 'toggleMute' }));
 
 // Volume Slider
 let sliderTimeout = null;
@@ -263,25 +289,32 @@ volSlider.addEventListener('input', (e) => {
   volDisplay.textContent = vol;
   clearTimeout(sliderTimeout);
   sliderTimeout = setTimeout(() => {
-    apiCall('/api/volume', 'POST', { volume: vol });
-  }, 150);
+    socket.emit('volume', { volume: vol });
+  }, 100);
 });
 
-// Channel Up / Down
-document.getElementById('btn-ch-up').addEventListener('click', () => {
-  apiCall('/api/channel', 'POST', { action: 'up' });
-});
+// Channel Up / Down via instant WebSocket
+const btnChUp = document.getElementById('btn-ch-up');
+if (btnChUp) bindFastTouch(btnChUp, () => socket.emit('channel', { action: 'up' }));
 
-document.getElementById('btn-ch-down').addEventListener('click', () => {
-  apiCall('/api/channel', 'POST', { action: 'down' });
-});
+const btnChDown = document.getElementById('btn-ch-down');
+if (btnChDown) bindFastTouch(btnChDown, () => socket.emit('channel', { action: 'down' }));
 
-// Media Controls
-document.getElementById('btn-play').addEventListener('click', () => apiCall('/api/media', 'POST', { action: 'play' }));
-document.getElementById('btn-pause').addEventListener('click', () => apiCall('/api/media', 'POST', { action: 'pause' }));
-document.getElementById('btn-stop').addEventListener('click', () => apiCall('/api/media', 'POST', { action: 'stop' }));
-document.getElementById('btn-rewind').addEventListener('click', () => apiCall('/api/media', 'POST', { action: 'rewind' }));
-document.getElementById('btn-ff').addEventListener('click', () => apiCall('/api/media', 'POST', { action: 'fastForward' }));
+// Media Controls via instant WebSocket
+const btnPlay = document.getElementById('btn-play');
+if (btnPlay) bindFastTouch(btnPlay, () => socket.emit('media', { action: 'play' }));
+
+const btnPause = document.getElementById('btn-pause');
+if (btnPause) bindFastTouch(btnPause, () => socket.emit('media', { action: 'pause' }));
+
+const btnStop = document.getElementById('btn-stop');
+if (btnStop) bindFastTouch(btnStop, () => socket.emit('media', { action: 'stop' }));
+
+const btnRewind = document.getElementById('btn-rewind');
+if (btnRewind) bindFastTouch(btnRewind, () => socket.emit('media', { action: 'rewind' }));
+
+const btnFF = document.getElementById('btn-ff');
+if (btnFF) bindFastTouch(btnFF, () => socket.emit('media', { action: 'fastForward' }));
 
 // Quick Apps
 document.querySelectorAll('[data-app]').forEach((btn) => {

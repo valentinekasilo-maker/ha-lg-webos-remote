@@ -348,6 +348,29 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('channel', async (data, ack) => {
+    try {
+      if (data.action === 'up') await tv.channelUp();
+      else if (data.action === 'down') await tv.channelDown();
+      if (ack) ack({ success: true });
+    } catch (err) {
+      if (ack) ack({ error: err.message });
+    }
+  });
+
+  socket.on('media', async (data, ack) => {
+    try {
+      if (data.action === 'play') await tv.play();
+      else if (data.action === 'pause') await tv.pause();
+      else if (data.action === 'stop') await tv.stop();
+      else if (data.action === 'rewind') await tv.rewind();
+      else if (data.action === 'fastForward') await tv.fastForward();
+      if (ack) ack({ success: true });
+    } catch (err) {
+      if (ack) ack({ error: err.message });
+    }
+  });
+
   socket.on('toast', async (message, ack) => {
     try {
       await tv.showToast(message);
