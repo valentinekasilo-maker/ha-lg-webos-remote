@@ -161,6 +161,93 @@ BUTTON_DESCRIPTIONS: list[ButtonDescription] = [
         icon="mdi:web",
         action=lambda client: client.launch_app("com.webos.app.browser"),
     ),
+    ButtonDescription(
+        key="app_livetv",
+        name="Live TV",
+        icon="mdi:television-classic",
+        action=lambda client: client.launch_app("com.webos.app.livetv"),
+    ),
+    ButtonDescription(
+        key="app_store",
+        name="LG Content Store",
+        icon="mdi:shopping",
+        action=lambda client: client.launch_app("com.webos.app.discovery"),
+    ),
+    # Media Playback
+    ButtonDescription(
+        key="media_play",
+        name="Play",
+        icon="mdi:play",
+        action=lambda client: client.media_play(),
+    ),
+    ButtonDescription(
+        key="media_pause",
+        name="Pause",
+        icon="mdi:pause",
+        action=lambda client: client.media_pause(),
+    ),
+    ButtonDescription(
+        key="media_stop",
+        name="Stop",
+        icon="mdi:stop",
+        action=lambda client: client.media_stop(),
+    ),
+    ButtonDescription(
+        key="media_rewind",
+        name="Rewind",
+        icon="mdi:rewind",
+        action=lambda client: client.media_rewind(),
+    ),
+    ButtonDescription(
+        key="media_fastforward",
+        name="Fast Forward",
+        icon="mdi:fast-forward",
+        action=lambda client: client.media_fast_forward(),
+    ),
+    # Color Keys
+    ButtonDescription(
+        key="color_red",
+        name="Red Key",
+        icon="mdi:circle",
+        action=lambda client: client.send_button("RED"),
+    ),
+    ButtonDescription(
+        key="color_green",
+        name="Green Key",
+        icon="mdi:circle",
+        action=lambda client: client.send_button("GREEN"),
+    ),
+    ButtonDescription(
+        key="color_yellow",
+        name="Yellow Key",
+        icon="mdi:circle",
+        action=lambda client: client.send_button("YELLOW"),
+    ),
+    ButtonDescription(
+        key="color_blue",
+        name="Blue Key",
+        icon="mdi:circle",
+        action=lambda client: client.send_button("BLUE"),
+    ),
+    # HDMI Inputs
+    ButtonDescription(
+        key="hdmi_1",
+        name="HDMI 1",
+        icon="mdi:video-input-hdmi",
+        action=lambda client: client.switch_input("HDMI_1"),
+    ),
+    ButtonDescription(
+        key="hdmi_2",
+        name="HDMI 2",
+        icon="mdi:video-input-hdmi",
+        action=lambda client: client.switch_input("HDMI_2"),
+    ),
+    ButtonDescription(
+        key="hdmi_3",
+        name="HDMI 3",
+        icon="mdi:video-input-hdmi",
+        action=lambda client: client.switch_input("HDMI_3"),
+    ),
 ]
 
 

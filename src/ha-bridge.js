@@ -251,16 +251,56 @@ class HomeAssistantBridge {
       icon: 'mdi:remote-tv'
     });
 
-    // 3. Remove raw individual button entities from discovery so HA doesn't generate 20 popup tiles
+    // 3. Complete TV Control Buttons (All Remote Controls)
     const buttons = [
-      'power_on', 'power_off', 'screen_off', 'screen_on',
-      'dpad_up', 'dpad_down', 'dpad_left', 'dpad_right', 'dpad_enter',
-      'nav_back', 'nav_home', 'nav_menu', 'nav_exit',
-      'vol_up', 'vol_down', 'vol_mute', 'chan_up', 'chan_down',
-      'app_youtube', 'app_netflix', 'app_spotify', 'app_browser'
+      { id: 'power_on', name: 'Power On (WoL)', icon: 'mdi:power' },
+      { id: 'power_off', name: 'Power Off', icon: 'mdi:power-off' },
+      { id: 'screen_off', name: 'Turn Screen Off', icon: 'mdi:television-ambient-light' },
+      { id: 'screen_on', name: 'Turn Screen On', icon: 'mdi:television-guide' },
+      { id: 'dpad_up', name: 'D-Pad Up', icon: 'mdi:chevron-up' },
+      { id: 'dpad_down', name: 'D-Pad Down', icon: 'mdi:chevron-down' },
+      { id: 'dpad_left', name: 'D-Pad Left', icon: 'mdi:chevron-left' },
+      { id: 'dpad_right', name: 'D-Pad Right', icon: 'mdi:chevron-right' },
+      { id: 'dpad_enter', name: 'D-Pad Enter / OK', icon: 'mdi:checkbox-marked-circle-outline' },
+      { id: 'nav_back', name: 'Back', icon: 'mdi:arrow-left' },
+      { id: 'nav_home', name: 'Home', icon: 'mdi:home' },
+      { id: 'nav_menu', name: 'Menu', icon: 'mdi:cog' },
+      { id: 'nav_exit', name: 'Exit', icon: 'mdi:close-circle-outline' },
+      { id: 'vol_up', name: 'Volume Up', icon: 'mdi:volume-plus' },
+      { id: 'vol_down', name: 'Volume Down', icon: 'mdi:volume-minus' },
+      { id: 'vol_mute', name: 'Mute Toggle', icon: 'mdi:volume-mute' },
+      { id: 'chan_up', name: 'Channel Up', icon: 'mdi:arrow-up-drop-circle-outline' },
+      { id: 'chan_down', name: 'Channel Down', icon: 'mdi:arrow-down-drop-circle-outline' },
+      { id: 'media_play', name: 'Play', icon: 'mdi:play' },
+      { id: 'media_pause', name: 'Pause', icon: 'mdi:pause' },
+      { id: 'media_stop', name: 'Stop', icon: 'mdi:stop' },
+      { id: 'media_rewind', name: 'Rewind', icon: 'mdi:rewind' },
+      { id: 'media_fastforward', name: 'Fast Forward', icon: 'mdi:fast-forward' },
+      { id: 'app_youtube', name: 'YouTube', icon: 'mdi:youtube' },
+      { id: 'app_netflix', name: 'Netflix', icon: 'mdi:netflix' },
+      { id: 'app_spotify', name: 'Spotify', icon: 'mdi:spotify' },
+      { id: 'app_browser', name: 'Web Browser', icon: 'mdi:web' },
+      { id: 'app_livetv', name: 'Live TV', icon: 'mdi:television-classic' },
+      { id: 'app_store', name: 'LG Content Store', icon: 'mdi:shopping' },
+      { id: 'color_red', name: 'Red Key', icon: 'mdi:circle' },
+      { id: 'color_green', name: 'Green Key', icon: 'mdi:circle' },
+      { id: 'color_yellow', name: 'Yellow Key', icon: 'mdi:circle' },
+      { id: 'color_blue', name: 'Blue Key', icon: 'mdi:circle' },
+      { id: 'hdmi_1', name: 'HDMI 1', icon: 'mdi:video-input-hdmi' },
+      { id: 'hdmi_2', name: 'HDMI 2', icon: 'mdi:video-input-hdmi' },
+      { id: 'hdmi_3', name: 'HDMI 3', icon: 'mdi:video-input-hdmi' }
     ];
-    buttons.forEach((btnId) => {
-      this.publish(`${prefix}/button/${deviceId}/${btnId}/config`, '', { retain: true });
+
+    buttons.forEach((btn) => {
+      this.publish(`${prefix}/button/${deviceId}/${btn.id}/config`, {
+        name: btn.name,
+        has_entity_name: true,
+        unique_id: `${deviceId}_btn_${btn.id}`,
+        device,
+        availability_topic: availTopic,
+        command_topic: `${deviceId}/button/${btn.id}/set`,
+        icon: btn.icon
+      });
     });
 
     // 4. Select Source
@@ -460,6 +500,20 @@ class HomeAssistantBridge {
         else if (ent.includes('netflix')) await tv.launchApp('netflix');
         else if (ent.includes('spotify')) await tv.launchApp('spotify-beehive');
         else if (ent.includes('browser') || ent.includes('web_browser')) await tv.launchApp('com.webos.app.browser');
+        else if (ent.includes('livetv') || ent.includes('live_tv')) await tv.launchApp('com.webos.app.livetv');
+        else if (ent.includes('store') || ent.includes('app_store')) await tv.launchApp('com.webos.app.discovery');
+        else if (ent.includes('media_play') || ent.includes('play')) await tv.play();
+        else if (ent.includes('media_pause') || ent.includes('pause')) await tv.pause();
+        else if (ent.includes('media_stop') || ent.includes('stop')) await tv.stop();
+        else if (ent.includes('media_rewind') || ent.includes('rewind')) await tv.rewind();
+        else if (ent.includes('media_fastforward') || ent.includes('fastforward')) await tv.fastForward();
+        else if (ent.includes('color_red') || ent.includes('red_key')) await tv.sendButton('RED');
+        else if (ent.includes('color_green') || ent.includes('green_key')) await tv.sendButton('GREEN');
+        else if (ent.includes('color_yellow') || ent.includes('yellow_key')) await tv.sendButton('YELLOW');
+        else if (ent.includes('color_blue') || ent.includes('blue_key')) await tv.sendButton('BLUE');
+        else if (ent.includes('hdmi_1')) await tv.setInput('HDMI_1');
+        else if (ent.includes('hdmi_2')) await tv.setInput('HDMI_2');
+        else if (ent.includes('hdmi_3')) await tv.setInput('HDMI_3');
         return;
       }
 
