@@ -1,5 +1,13 @@
-ARG BUILD_FROM=node:20-alpine
+ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base:latest
 FROM ${BUILD_FROM}
+
+# Set shell
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+
+# Install Node.js and npm
+RUN apk add --no-cache \
+    nodejs \
+    npm
 
 WORKDIR /app
 
@@ -13,4 +21,4 @@ COPY . .
 # Expose web remote port
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
