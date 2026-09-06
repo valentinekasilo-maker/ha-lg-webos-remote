@@ -4,8 +4,8 @@
  * Direct 1-Tap Action Execution Architecture:
  * - 0ms latency direct service calls via hass.callService
  * - ZERO More-Info popups, ZERO secondary press dialogs
- * - All TV Controls: Power On/Off, Screen On/Off, Keypad (0-9, Info, Guide),
- *   Unified D-Pad, Navigation, Volume & Channels, Playback, Apps, HDMI Inputs, Color Keys, Keyboard
+ * - Physical tactile layout: Power On/Off, Screen On/Off, Input, Unified D-Pad,
+ *   Navigation, Volume & Channels, Playback, Apps, HDMI Inputs, Color Keys, Keyboard
  */
 
 class LGRemoteCard extends HTMLElement {
@@ -14,7 +14,6 @@ class LGRemoteCard extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this._hass = null;
     this._config = {};
-    this._showKeypad = false;
   }
 
   setConfig(config) {
@@ -22,10 +21,8 @@ class LGRemoteCard extends HTMLElement {
       name: config.name || 'LG webOS Smart Remote',
       media_player: config.media_player || config.entity || 'media_player.living_room_living_room',
       remote_entity: config.remote_entity || 'remote.living_room_living_room',
-      show_keypad: config.show_keypad !== undefined ? config.show_keypad : false,
       ...config
     };
-    this._showKeypad = this._config.show_keypad;
     this.render();
   }
 
@@ -183,11 +180,6 @@ class LGRemoteCard extends HTMLElement {
           font-weight: 500;
         }
 
-        .header-btns {
-          display: flex;
-          gap: 6px;
-        }
-
         button {
           background: var(--remote-btn-bg);
           border: 1px solid var(--remote-border);
@@ -230,45 +222,6 @@ class LGRemoteCard extends HTMLElement {
         .btn-screen { color: #38bdf8; }
         .btn-input { color: #fbbf24; border-color: rgba(251, 191, 36, 0.25); }
 
-        /* --- KEYPAD TOGGLE & SECTION --- */
-        .keypad-toggle-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-          padding: 0 2px;
-        }
-
-        .section-label {
-          font-size: 0.74rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.8px;
-          color: var(--remote-text-dim);
-        }
-
-        .keypad-toggle-btn {
-          font-size: 0.72rem;
-          padding: 3px 10px;
-          border-radius: 8px;
-          background: rgba(56, 189, 248, 0.1);
-          border-color: rgba(56, 189, 248, 0.3);
-          color: #38bdf8;
-        }
-
-        .keypad-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-          margin-bottom: 14px;
-        }
-
-        .keypad-btn {
-          height: 38px;
-          font-size: 1rem;
-          font-weight: 700;
-        }
-
         /* --- UNIFIED D-PAD NAVIGATION WHEEL --- */
         .dpad-section {
           display: flex;
@@ -299,40 +252,22 @@ class LGRemoteCard extends HTMLElement {
           border-radius: 0;
         }
 
-        .dpad-up {
-          top: 4px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 70px;
-          height: 54px;
-          border-radius: 35px 35px 8px 8px;
+        .dpad-btn:active {
+          background: transparent;
+          box-shadow: none;
+          transform: scale(0.92);
         }
 
-        .dpad-down {
-          bottom: 4px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 70px;
-          height: 54px;
-          border-radius: 8px 8px 35px 35px;
-        }
+        .dpad-up { top: 6px; left: 50%; transform: translateX(-50%); width: 70px; height: 50px; }
+        .dpad-down { bottom: 6px; left: 50%; transform: translateX(-50%); width: 70px; height: 50px; }
+        .dpad-left { left: 6px; top: 50%; transform: translateY(-50%); width: 50px; height: 70px; }
+        .dpad-right { right: 6px; top: 50%; transform: translateY(-50%); width: 50px; height: 70px; }
 
-        .dpad-left {
-          left: 4px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 54px;
-          height: 70px;
-          border-radius: 35px 8px 8px 35px;
-        }
-
-        .dpad-right {
-          right: 4px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 54px;
-          height: 70px;
-          border-radius: 8px 35px 35px 8px;
+        .dpad-btn svg {
+          width: 28px;
+          height: 28px;
+          fill: var(--remote-text);
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
         }
 
         .dpad-ok {
@@ -340,27 +275,22 @@ class LGRemoteCard extends HTMLElement {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 80px;
-          height: 80px;
+          width: 76px;
+          height: 76px;
           border-radius: 50%;
-          background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(37, 99, 235, 0.25) 100%);
-          border: 1px solid rgba(56, 189, 248, 0.5);
-          color: #ffffff;
+          background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 165, 233, 0.1) 100%);
+          border: 2px solid rgba(56, 189, 248, 0.5);
+          color: #38bdf8;
           font-weight: 800;
           font-size: 1.05rem;
-          letter-spacing: 0.8px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-        }
-
-        .dpad-btn:active {
-          background: rgba(56, 189, 248, 0.35);
-          color: #bae6fd;
+          letter-spacing: 0.5px;
+          box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.2);
         }
 
         .dpad-ok:active {
-          transform: translate(-50%, -50%) scale(0.92);
-          background: rgba(56, 189, 248, 0.65);
-          box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+          transform: translate(-50%, -50%) scale(0.9);
+          background: rgba(56, 189, 248, 0.45);
+          box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
         }
 
         /* --- NAVIGATION 4-BUTTON GRID --- */
@@ -373,16 +303,17 @@ class LGRemoteCard extends HTMLElement {
 
         .nav-pill {
           height: 42px;
-          font-size: 0.82rem;
+          font-size: 0.76rem;
           font-weight: 600;
-          gap: 6px;
+          gap: 4px;
+          background: rgba(255, 255, 255, 0.03);
         }
 
-        /* --- VOLUME & CHANNEL ROCKERS --- */
+        /* --- VOLUME & CHANNELS --- */
         .controls-row {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 10px;
+          grid-template-columns: 1fr auto 1fr;
+          gap: 12px;
           margin-bottom: 14px;
         }
 
@@ -393,34 +324,37 @@ class LGRemoteCard extends HTMLElement {
         }
 
         .ctrl-btn {
-          height: 44px;
+          height: 46px;
+          font-size: 0.82rem;
           font-weight: 700;
-          font-size: 0.88rem;
           gap: 6px;
+          background: rgba(255, 255, 255, 0.04);
         }
 
         .mute-btn {
-          height: 100%;
-          flex-direction: column;
-          gap: 4px;
+          height: 100px;
           background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.2);
+          border-color: rgba(239, 68, 68, 0.25);
           color: #f87171;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
         }
 
-        /* --- MEDIA PLAYBACK (5 BUTTONS) --- */
+        /* --- MEDIA PLAYBACK --- */
         .media-row {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-          gap: 6px;
+          gap: 8px;
           margin-bottom: 14px;
         }
 
         .media-btn {
-          height: 38px;
+          height: 40px;
+          background: rgba(255, 255, 255, 0.03);
         }
 
-        /* --- QUICK APPS GRID (6 APPS) --- */
+        /* --- APPS GRID --- */
         .apps-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -429,9 +363,9 @@ class LGRemoteCard extends HTMLElement {
         }
 
         .app-btn {
-          height: 40px;
+          height: 38px;
+          font-size: 0.78rem;
           font-weight: 700;
-          font-size: 0.8rem;
           border-radius: 10px;
         }
 
@@ -525,9 +459,6 @@ class LGRemoteCard extends HTMLElement {
               <div class="app-status" id="appStatus">LG webOS TV</div>
             </div>
           </div>
-          <div class="header-btns">
-            <button class="keypad-toggle-btn" id="btnToggleKeypad" title="Toggle Number Keypad">123 #</button>
-          </div>
         </div>
 
         <!-- 2. POWER, SCREEN & INPUT CONTROLS -->
@@ -554,25 +485,7 @@ class LGRemoteCard extends HTMLElement {
           </button>
         </div>
 
-        <!-- 3. KEYPAD SECTION (COLLAPSIBLE / EXPANDABLE) -->
-        <div id="keypadContainer" style="display: ${this._showKeypad ? 'block' : 'none'};">
-          <div class="keypad-grid">
-            <button class="keypad-btn" id="btnNum1">1</button>
-            <button class="keypad-btn" id="btnNum2">2</button>
-            <button class="keypad-btn" id="btnNum3">3</button>
-            <button class="keypad-btn" id="btnNum4">4</button>
-            <button class="keypad-btn" id="btnNum5">5</button>
-            <button class="keypad-btn" id="btnNum6">6</button>
-            <button class="keypad-btn" id="btnNum7">7</button>
-            <button class="keypad-btn" id="btnNum8">8</button>
-            <button class="keypad-btn" id="btnNum9">9</button>
-            <button class="keypad-btn" id="btnNumDash" style="font-size:0.8rem;">INFO</button>
-            <button class="keypad-btn" id="btnNum0">0</button>
-            <button class="keypad-btn" id="btnNumGuide" style="font-size:0.8rem;">GUIDE</button>
-          </div>
-        </div>
-
-        <!-- 4. UNIFIED D-PAD NAVIGATION WHEEL -->
+        <!-- 3. UNIFIED D-PAD NAVIGATION WHEEL -->
         <div class="dpad-section">
           <div class="dpad-wheel">
             <button class="dpad-btn dpad-up" id="btnUp" title="Up">
@@ -591,7 +504,7 @@ class LGRemoteCard extends HTMLElement {
           </div>
         </div>
 
-        <!-- 5. NAVIGATION 4-BUTTON GRID (HOME, BACK, MENU, EXIT) -->
+        <!-- 4. NAVIGATION 4-BUTTON GRID (HOME, BACK, MENU, EXIT) -->
         <div class="nav-grid">
           <button class="nav-pill" id="btnHome" title="Home">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -611,7 +524,7 @@ class LGRemoteCard extends HTMLElement {
           </button>
         </div>
 
-        <!-- 6. VOLUME, MUTE & CHANNELS -->
+        <!-- 5. VOLUME, MUTE & CHANNELS -->
         <div class="controls-row">
           <div class="rocker-col">
             <button class="ctrl-btn" id="btnVolUp" title="Volume Up">
@@ -643,7 +556,7 @@ class LGRemoteCard extends HTMLElement {
           </div>
         </div>
 
-        <!-- 7. MEDIA PLAYBACK (5 BUTTONS: REWIND, PLAY, PAUSE, FASTFORWARD, STOP) -->
+        <!-- 6. MEDIA PLAYBACK (5 BUTTONS: REWIND, PLAY, PAUSE, FASTFORWARD, STOP) -->
         <div class="media-row">
           <button class="media-btn" id="btnRewind" title="Rewind">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -662,7 +575,7 @@ class LGRemoteCard extends HTMLElement {
           </button>
         </div>
 
-        <!-- 8. QUICK APPS (6 APPS) -->
+        <!-- 7. QUICK APPS (6 APPS) -->
         <div class="apps-grid">
           <button class="app-btn app-yt" id="btnYt">YouTube</button>
           <button class="app-btn app-nf" id="btnNf">Netflix</button>
@@ -672,14 +585,14 @@ class LGRemoteCard extends HTMLElement {
           <button class="app-btn app-store" id="btnStore">LG Store</button>
         </div>
 
-        <!-- 9. HDMI INPUTS -->
+        <!-- 8. HDMI INPUTS -->
         <div class="hdmi-row">
           <button class="hdmi-btn" id="btnHdmi1">HDMI 1</button>
           <button class="hdmi-btn" id="btnHdmi2">HDMI 2</button>
           <button class="hdmi-btn" id="btnHdmi3">HDMI 3</button>
         </div>
 
-        <!-- 10. COLOR KEYS (RED, GREEN, YELLOW, BLUE) -->
+        <!-- 9. COLOR KEYS (RED, GREEN, YELLOW, BLUE) -->
         <div class="color-row">
           <button class="color-btn red" id="btnRed" title="Red Key"></button>
           <button class="color-btn green" id="btnGreen" title="Green Key"></button>
@@ -687,7 +600,7 @@ class LGRemoteCard extends HTMLElement {
           <button class="color-btn blue" id="btnBlue" title="Blue Key"></button>
         </div>
 
-        <!-- 11. VIRTUAL KEYBOARD TYPING BAR -->
+        <!-- 10. VIRTUAL KEYBOARD TYPING BAR -->
         <div class="keyboard-bar">
           <input type="text" class="keyboard-input" id="keyboardInput" placeholder="Type search text on TV..." />
           <button class="keyboard-btn" id="btnSendText">Send</button>
@@ -720,32 +633,6 @@ class LGRemoteCard extends HTMLElement {
         e.stopPropagation();
       });
     };
-
-    // --- KEYPAD TOGGLE ---
-    const toggleBtn = root.getElementById('btnToggleKeypad');
-    const keypadContainer = root.getElementById('keypadContainer');
-    if (toggleBtn && keypadContainer) {
-      toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this._showKeypad = !this._showKeypad;
-        keypadContainer.style.display = this._showKeypad ? 'block' : 'none';
-      });
-    }
-
-    // --- KEYPAD NUMBERS ---
-    bindTap('btnNum0', () => this.sendRemote('0'));
-    bindTap('btnNum1', () => this.sendRemote('1'));
-    bindTap('btnNum2', () => this.sendRemote('2'));
-    bindTap('btnNum3', () => this.sendRemote('3'));
-    bindTap('btnNum4', () => this.sendRemote('4'));
-    bindTap('btnNum5', () => this.sendRemote('5'));
-    bindTap('btnNum6', () => this.sendRemote('6'));
-    bindTap('btnNum7', () => this.sendRemote('7'));
-    bindTap('btnNum8', () => this.sendRemote('8'));
-    bindTap('btnNum9', () => this.sendRemote('9'));
-    bindTap('btnNumDash', () => this.sendRemote('INFO'));
-    bindTap('btnNumGuide', () => this.sendRemote('GUIDE'));
 
     // --- POWER & SCREEN ---
     bindTap('btnPowerOn', () => {
@@ -856,7 +743,7 @@ class LGRemoteCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 10;
+    return 8;
   }
 }
 
@@ -865,6 +752,6 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'lg-remote-card',
   name: 'LG Smart Remote Card',
-  description: 'Physical tactile glassmorphic LG TV remote controller with all TV controls, unified D-Pad wheel, keypad, and 1-tap instant action execution.'
+  description: 'Physical tactile glassmorphic LG TV remote controller with unified D-Pad wheel and 1-tap instant action execution.'
 });
-console.log('*** LG webOS Smart Remote Card v2.2 Registered ***');
+console.log('*** LG webOS Smart Remote Card v2.3 Registered ***');
