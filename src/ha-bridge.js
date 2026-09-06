@@ -100,17 +100,28 @@ class HomeAssistantBridge {
       // Publish Discovery configurations
       this.publishAllDiscovery();
 
-      // Subscribe to call_service events to capture Home Assistant UI clicks
+      // Subscribe to call_service events to capture Home Assistant UI clicks & automations
       this.wsSend({
         id: this.reqId++,
         type: 'subscribe_events',
         event_type: 'call_service'
       });
 
+      // Subscribe to MQTT topics via Home Assistant WebSocket
+      this.wsSend({
+        id: this.reqId++,
+        type: 'mqtt/subscribe',
+        topic: `${this.getDeviceId()}/#`
+      });
+
       // Initial state synchronization
       this.syncState();
-    } else if (data.type === 'event' && data.event && data.event.event_type === 'call_service') {
-      this.handleServiceCall(data.event.data);
+    } else if (data.type === 'event' && data.event) {
+      if (data.event.event_type === 'call_service' && data.event.data) {
+        this.handleServiceCall(data.event.data);
+      } else if (data.event.topic && data.event.payload !== undefined) {
+        this.handleMqttMessage(data.event.topic, String(data.event.payload).trim());
+      }
     }
   }
 
@@ -451,24 +462,367 @@ class HomeAssistantBridge {
     this.publish(`${deviceId}/sensor/volume/state`, String(volume));
   }
 
+  // --- MQTT COMMAND HANDLER ---
+  async handleMqttMessage(topic, payload) {
+    if (!topic) return;
+    const deviceId = this.getDeviceId();
+    if (!topic.startsWith(deviceId)) return;
+
+    const subTopic = topic.substring(deviceId.length);
+    console.log(`[HA-Bridge] MQTT Command [${topic}]: "${payload}"`);
+
+    try {
+      // 1. Remote Send Command topic (e.g. /remote/send_command)
+      if (subTopic === '/remote/send_command') {
+        let commands = [];
+        try {
+          const parsed = JSON.parse(payload);
+          if (Array.isArray(parsed)) {
+            commands = parsed;
+          } else if (parsed && parsed.command) {
+            commands = Array.isArray(parsed.command) ? parsed.command : [parsed.command];
+          } else if (typeof parsed === 'string') {
+            commands = [parsed];
+          } else {
+            commands = [payload];
+          }
+        } catch (e) {
+          commands = String(payload).split(',').map((c) => c.trim()).filter(Boolean);
+        }
+
+        for (const cmd of commands) {
+          await this.executeRemoteCommand(cmd);
+        }
+        return;
+      }
+
+      // 2. Power on/off topics
+      if (subTopic === '/remote/power/set' || subTopic === '/media_player/power/set' || subTopic === '/power/set') {
+        const p = String(payload).trim().toUpperCase();
+        if (p === 'ON' || p === '1' || p === 'TRUE' || p === 'WOL') {
+          await tv.turnOn();
+        } else if (p === 'OFF' || p === '0' || p === 'FALSE') {
+          await tv.turnOff();
+        } else if (p === 'TOGGLE') {
+          if (tv.getStatus().connected) await tv.turnOff();
+          else await tv.turnOn();
+        }
+        return;
+      }
+
+      // 3. Media Player Volume
+      if (subTopic === '/media_player/volume/set' || subTopic === '/volume/set') {
+        const floatVol = parseFloat(payload);
+        if (!isNaN(floatVol)) {
+          const intVol = floatVol <= 1.0 && floatVol > 0 ? Math.round(floatVol * 100) : Math.round(floatVol);
+          await tv.setVolume(intVol);
+        }
+        return;
+      }
+
+      // 4. Media Player Mute
+      if (subTopic === '/media_player/mute/set' || subTopic === '/mute/set') {
+        const p = String(payload).trim().toUpperCase();
+        if (p === 'ON' || p === '1' || p === 'TRUE' || p === 'MUTE') {
+          await tv.setMute(true);
+        } else if (p === 'OFF' || p === '0' || p === 'FALSE' || p === 'UNMUTE') {
+          await tv.setMute(false);
+        } else if (p === 'TOGGLE') {
+          await tv.setMute(!tv.getStatus().muted);
+        }
+        return;
+      }
+
+      // 5. Source / App Launch
+      if (subTopic === '/media_player/source/set' || subTopic === '/select/source/set' || subTopic === '/source/set') {
+        await this.launchSource(payload);
+        return;
+      }
+
+      // 6. Media Playback
+      if (subTopic === '/media_player/media/set' || subTopic === '/media/set') {
+        const cmd = String(payload).trim().toUpperCase();
+        if (cmd === 'PLAY') await tv.play();
+        else if (cmd === 'PAUSE') await tv.pause();
+        else if (cmd === 'STOP') await tv.stop();
+        else if (cmd === 'NEXT' || cmd === 'FAST_FORWARD' || cmd === 'FASTFORWARD') await tv.fastForward();
+        else if (cmd === 'PREVIOUS' || cmd === 'REWIND') await tv.rewind();
+        else if (cmd === 'PLAY_PAUSE' || cmd === 'TOGGLE') await tv.play();
+        return;
+      }
+
+      // 7. Virtual Keyboard Typing
+      if (subTopic === '/text/typing/set' || subTopic === '/keyboard/type') {
+        await tv.sendText(payload);
+        this.publish(`${deviceId}/text/typing/state`, payload);
+        return;
+      }
+
+      if (subTopic === '/keyboard/enter') {
+        await tv.sendEnter();
+        return;
+      }
+
+      if (subTopic === '/keyboard/backspace') {
+        const count = parseInt(payload, 10) || 1;
+        await tv.sendBackspace(count);
+        return;
+      }
+
+      // 8. Toast Notifications
+      if (subTopic === '/toast/set' || subTopic === '/toast') {
+        await tv.showToast(payload);
+        return;
+      }
+
+      // 9. YouTube Launch
+      if (subTopic === '/youtube/set' || subTopic === '/youtube') {
+        await tv.openYoutube(payload);
+        return;
+      }
+
+      // 10. Buttons (/button/<btn_id>/set or /button/<btn_id>)
+      if (subTopic.startsWith('/button/')) {
+        const parts = subTopic.split('/');
+        const btnId = parts[2];
+        if (btnId) {
+          await this.executeButtonAction(btnId);
+        }
+        return;
+      }
+    } catch (err) {
+      console.error(`[HA-Bridge] MQTT command error on [${topic}]:`, err.message);
+    }
+  }
+
+  // --- BUTTON ACTION EXECUTION ---
+  async executeButtonAction(btnId) {
+    const id = String(btnId).toLowerCase().trim();
+    console.log(`[HA-Bridge] Executing button action: "${id}"`);
+
+    switch (id) {
+      // Power & Screen
+      case 'power_on':
+      case 'wol':
+      case 'power_on_wol':
+        return tv.turnOn();
+      case 'power_off':
+        return tv.turnOff();
+      case 'screen_off':
+      case 'turn_screen_off':
+        return tv.turnScreenOff();
+      case 'screen_on':
+      case 'turn_screen_on':
+        return tv.turnScreenOn();
+
+      // D-Pad Navigation
+      case 'dpad_up':
+      case 'up':
+        return tv.sendButton('UP');
+      case 'dpad_down':
+      case 'down':
+        return tv.sendButton('DOWN');
+      case 'dpad_left':
+      case 'left':
+        return tv.sendButton('LEFT');
+      case 'dpad_right':
+      case 'right':
+        return tv.sendButton('RIGHT');
+      case 'dpad_enter':
+      case 'enter':
+      case 'ok':
+      case 'select':
+        return tv.sendButton('ENTER');
+
+      // Navigation & Menu
+      case 'nav_back':
+      case 'back':
+        return tv.sendButton('BACK');
+      case 'nav_home':
+      case 'home':
+        return tv.sendButton('HOME');
+      case 'nav_menu':
+      case 'menu':
+      case 'settings':
+        return tv.sendButton('MENU');
+      case 'nav_exit':
+      case 'exit':
+        return tv.sendButton('EXIT');
+      case 'nav_info':
+      case 'info':
+        return tv.sendButton('INFO');
+      case 'nav_guide':
+      case 'guide':
+        return tv.sendButton('GUIDE');
+      case 'nav_cc':
+      case 'cc':
+      case 'captions':
+        return tv.sendButton('CC');
+
+      // Volume & Channels
+      case 'vol_up':
+      case 'volume_up':
+        return tv.volumeUp();
+      case 'vol_down':
+      case 'volume_down':
+        return tv.volumeDown();
+      case 'vol_mute':
+      case 'mute':
+        return tv.setMute(!tv.getStatus().muted);
+      case 'chan_up':
+      case 'channel_up':
+        return tv.channelUp();
+      case 'chan_down':
+      case 'channel_down':
+        return tv.channelDown();
+
+      // Keypad Numbers (0-9, Dash)
+      case 'num_0':
+      case '0':
+        return tv.sendButton('0');
+      case 'num_1':
+      case '1':
+        return tv.sendButton('1');
+      case 'num_2':
+      case '2':
+        return tv.sendButton('2');
+      case 'num_3':
+      case '3':
+        return tv.sendButton('3');
+      case 'num_4':
+      case '4':
+        return tv.sendButton('4');
+      case 'num_5':
+      case '5':
+        return tv.sendButton('5');
+      case 'num_6':
+      case '6':
+        return tv.sendButton('6');
+      case 'num_7':
+      case '7':
+        return tv.sendButton('7');
+      case 'num_8':
+      case '8':
+        return tv.sendButton('8');
+      case 'num_9':
+      case '9':
+        return tv.sendButton('9');
+      case 'num_dash':
+      case 'dash':
+        return tv.sendButton('DASH');
+
+      // Quick Apps
+      case 'app_youtube':
+      case 'youtube':
+        return tv.openYoutube('');
+      case 'app_netflix':
+      case 'netflix':
+        return tv.launchApp('netflix');
+      case 'app_spotify':
+      case 'spotify':
+        return tv.launchApp('spotify-beehive');
+      case 'app_browser':
+      case 'browser':
+      case 'web_browser':
+        return tv.launchApp('com.webos.app.browser');
+      case 'app_livetv':
+      case 'livetv':
+      case 'live_tv':
+        return tv.launchApp('com.webos.app.livetv');
+      case 'app_store':
+      case 'store':
+      case 'app_store':
+        return tv.launchApp('com.webos.app.discovery');
+
+      // Media Controls
+      case 'media_play':
+      case 'play':
+        return tv.play();
+      case 'media_pause':
+      case 'pause':
+        return tv.pause();
+      case 'media_stop':
+      case 'stop':
+        return tv.stop();
+      case 'media_rewind':
+      case 'rewind':
+        return tv.rewind();
+      case 'media_fastforward':
+      case 'fastforward':
+      case 'fast_forward':
+        return tv.fastForward();
+
+      // Color Keys
+      case 'color_red':
+      case 'red':
+      case 'red_key':
+        return tv.sendButton('RED');
+      case 'color_green':
+      case 'green':
+      case 'green_key':
+        return tv.sendButton('GREEN');
+      case 'color_yellow':
+      case 'yellow':
+      case 'yellow_key':
+        return tv.sendButton('YELLOW');
+      case 'color_blue':
+      case 'blue':
+      case 'blue_key':
+        return tv.sendButton('BLUE');
+
+      // HDMI Inputs
+      case 'input_source':
+      case 'input':
+        return tv.sendButton('INPUT');
+      case 'hdmi_1':
+      case 'hdmi1':
+        return tv.setInput('HDMI_1');
+      case 'hdmi_2':
+      case 'hdmi2':
+        return tv.setInput('HDMI_2');
+      case 'hdmi_3':
+      case 'hdmi3':
+        return tv.setInput('HDMI_3');
+
+      default:
+        console.warn(`[HA-Bridge] Fallback executing button "${btnId}" via sendButton`);
+        return tv.sendButton(btnId.toUpperCase());
+    }
+  }
+
   // --- SERVICE CALL EVENT DISPATCHER ---
   async handleServiceCall(data) {
     if (!data || !data.domain) return;
     const { domain, service, service_data } = data;
+
+    // 0. Forward internal MQTT publish service calls
+    if (domain === 'mqtt' && service === 'publish' && service_data && service_data.topic) {
+      await this.handleMqttMessage(service_data.topic, String(service_data.payload || '').trim());
+      return;
+    }
+
     const entityId = (service_data && (service_data.entity_id || service_data.entity_ids)) ? String(service_data.entity_id || service_data.entity_ids) : '';
     const deviceId = (service_data && service_data.device_id) ? String(service_data.device_id) : '';
 
     const entLower = entityId.toLowerCase();
     const isLgTvService = domain === 'lg_webos_smart_remote';
-    const isLgEntity = entLower.includes('lg_webos') || 
-                       entLower.includes('lg_tv') || 
-                       entLower.includes('tv_remote') ||
-                       entLower.includes('living_room_living_room') ||
+    const isLgEntity = !entityId || 
+                       entLower.includes('lg') || 
+                       entLower.includes('webos') || 
+                       entLower.includes('tv') ||
+                       entLower.includes('remote') ||
+                       entLower.includes('living_room') ||
                        entLower.includes('d_pad') ||
-                       entLower.includes('screen_off') ||
-                       entLower.includes('screen_on') ||
-                       entLower.includes('power_on_wol') ||
-                       entLower.includes('power_off') ||
+                       entLower.includes('dpad') ||
+                       entLower.includes('screen') ||
+                       entLower.includes('power') ||
+                       entLower.includes('vol') ||
+                       entLower.includes('chan') ||
+                       entLower.includes('media_') ||
+                       entLower.includes('app_') ||
+                       entLower.includes('color_') ||
+                       entLower.includes('hdmi') ||
+                       entLower.includes('num_') ||
                        deviceId.includes('cf7f119552f98a0ff46ed71a59071a96') ||
                        deviceId.includes('774cdec99cfdca039dd668ddb5697e46');
 
@@ -479,78 +833,65 @@ class HomeAssistantBridge {
     console.log(`[HA-Bridge] Handling HA Service Call: [${domain}.${service}] on ${entityId || deviceId}`);
 
     try {
-      // 0. Custom lg_webos_smart_remote Domain Services
+      // 1. Custom lg_webos_smart_remote Domain Services
       if (domain === 'lg_webos_smart_remote') {
-        if (service === 'send_button' && service_data.button) await tv.sendButton(service_data.button);
+        if (service === 'send_button' && service_data.button) await this.executeRemoteCommand(service_data.button);
         else if (service === 'send_text' && service_data.text) await tv.sendText(service_data.text);
         else if (service === 'show_toast' && service_data.message) await tv.showToast(service_data.message, service_data.icon);
         else if (service === 'screen_off') await tv.turnScreenOff();
         else if (service === 'screen_on') await tv.turnScreenOn();
-        else if (service === 'open_youtube') await tv.openYoutube(service_data.video_id || '');
+        else if (service === 'open_youtube') await tv.openYoutube(service_data.video_id || service_data.url || '');
+        else if (service === 'turn_on') await tv.turnOn();
+        else if (service === 'turn_off') await tv.turnOff();
         return;
       }
 
-      // 1. Button Presses
+      // 2. Button Entity Presses
       if (domain === 'button' && service === 'press') {
         const ent = entityId.toLowerCase();
-        if (ent.includes('power_on') || ent.includes('wol')) await tv.turnOn();
-        else if (ent.includes('power_off')) await tv.turnOff();
-        else if (ent.includes('screen_off') || ent.includes('turn_screen_off')) await tv.turnScreenOff();
-        else if (ent.includes('screen_on') || ent.includes('turn_screen_on')) await tv.turnScreenOn();
-        else if (ent.includes('d_pad_up') || ent.includes('dpad_up') || ent.includes('_up')) await tv.sendButton('UP');
-        else if (ent.includes('d_pad_down') || ent.includes('dpad_down') || ent.includes('_down')) await tv.sendButton('DOWN');
-        else if (ent.includes('d_pad_left') || ent.includes('dpad_left') || ent.includes('_left')) await tv.sendButton('LEFT');
-        else if (ent.includes('d_pad_right') || ent.includes('dpad_right') || ent.includes('_right')) await tv.sendButton('RIGHT');
-        else if (ent.includes('d_pad_enter') || ent.includes('dpad_enter') || ent.includes('enter') || ent.includes('ok')) await tv.sendButton('ENTER');
-        else if (ent.includes('back')) await tv.sendButton('BACK');
-        else if (ent.includes('home')) await tv.sendButton('HOME');
-        else if (ent.includes('menu')) await tv.sendButton('MENU');
-        else if (ent.includes('exit')) await tv.sendButton('EXIT');
-        else if (ent.includes('vol_up') || ent.includes('volume_up')) await tv.volumeUp();
-        else if (ent.includes('vol_down') || ent.includes('volume_down')) await tv.volumeDown();
-        else if (ent.includes('mute')) await tv.setMute(!tv.getStatus().muted);
-        else if (ent.includes('chan_up') || ent.includes('channel_up')) await tv.channelUp();
-        else if (ent.includes('chan_down') || ent.includes('channel_down')) await tv.channelDown();
-        else if (ent.includes('youtube')) await tv.openYoutube('');
-        else if (ent.includes('netflix')) await tv.launchApp('netflix');
-        else if (ent.includes('spotify')) await tv.launchApp('spotify-beehive');
-        else if (ent.includes('browser') || ent.includes('web_browser')) await tv.launchApp('com.webos.app.browser');
-        else if (ent.includes('livetv') || ent.includes('live_tv')) await tv.launchApp('com.webos.app.livetv');
-        else if (ent.includes('store') || ent.includes('app_store')) await tv.launchApp('com.webos.app.discovery');
-        else if (ent.includes('media_play') || ent.includes('play')) await tv.play();
-        else if (ent.includes('media_pause') || ent.includes('pause')) await tv.pause();
-        else if (ent.includes('media_stop') || ent.includes('stop')) await tv.stop();
-        else if (ent.includes('media_rewind') || ent.includes('rewind')) await tv.rewind();
-        else if (ent.includes('media_fastforward') || ent.includes('fastforward')) await tv.fastForward();
-        else if (ent.includes('color_red') || ent.includes('red_key')) await tv.sendButton('RED');
-        else if (ent.includes('color_green') || ent.includes('green_key')) await tv.sendButton('GREEN');
-        else if (ent.includes('color_yellow') || ent.includes('yellow_key')) await tv.sendButton('YELLOW');
-        else if (ent.includes('color_blue') || ent.includes('blue_key')) await tv.sendButton('BLUE');
-        else if (ent.includes('hdmi_1')) await tv.setInput('HDMI_1');
-        else if (ent.includes('hdmi_2')) await tv.setInput('HDMI_2');
-        else if (ent.includes('hdmi_3')) await tv.setInput('HDMI_3');
-        else if (ent.includes('input_source') || ent.includes('input')) await tv.sendButton('INPUT');
-        else if (ent.includes('nav_info') || ent.includes('_info')) await tv.sendButton('INFO');
-        else if (ent.includes('nav_guide') || ent.includes('_guide')) await tv.sendButton('GUIDE');
-        else if (ent.includes('nav_cc') || ent.includes('_cc')) await tv.sendButton('CC');
-        else if (ent.includes('num_dash') || ent.includes('_dash')) await tv.sendButton('DASH');
-        else if (ent.includes('num_0') || ent.endsWith('_0')) await tv.sendButton('0');
-        else if (ent.includes('num_1') || ent.endsWith('_1')) await tv.sendButton('1');
-        else if (ent.includes('num_2') || ent.endsWith('_2')) await tv.sendButton('2');
-        else if (ent.includes('num_3') || ent.endsWith('_3')) await tv.sendButton('3');
-        else if (ent.includes('num_4') || ent.endsWith('_4')) await tv.sendButton('4');
-        else if (ent.includes('num_5') || ent.endsWith('_5')) await tv.sendButton('5');
-        else if (ent.includes('num_6') || ent.endsWith('_6')) await tv.sendButton('6');
-        else if (ent.includes('num_7') || ent.endsWith('_7')) await tv.sendButton('7');
-        else if (ent.includes('num_8') || ent.endsWith('_8')) await tv.sendButton('8');
-        else if (ent.includes('num_9') || ent.endsWith('_9')) await tv.sendButton('9');
+        const matched = [
+          'power_on', 'power_off', 'screen_off', 'screen_on',
+          'dpad_up', 'dpad_down', 'dpad_left', 'dpad_right', 'dpad_enter',
+          'nav_back', 'nav_home', 'nav_menu', 'nav_exit', 'nav_info', 'nav_guide', 'nav_cc',
+          'vol_up', 'vol_down', 'vol_mute', 'chan_up', 'chan_down',
+          'num_0', 'num_1', 'num_2', 'num_3', 'num_4', 'num_5', 'num_6', 'num_7', 'num_8', 'num_9', 'num_dash',
+          'app_youtube', 'app_netflix', 'app_spotify', 'app_browser', 'app_livetv', 'app_store',
+          'media_play', 'media_pause', 'media_stop', 'media_rewind', 'media_fastforward',
+          'color_red', 'color_green', 'color_yellow', 'color_blue',
+          'input_source', 'hdmi_1', 'hdmi_2', 'hdmi_3'
+        ].find((k) => ent.endsWith(`_${k}`) || ent.includes(`btn_${k}`) || ent.includes(k));
+
+        if (matched) {
+          await this.executeButtonAction(matched);
+        } else {
+          if (ent.includes('power_on') || ent.includes('wol')) await tv.turnOn();
+          else if (ent.includes('power_off')) await tv.turnOff();
+          else if (ent.includes('screen_off')) await tv.turnScreenOff();
+          else if (ent.includes('screen_on')) await tv.turnScreenOn();
+          else if (ent.includes('up')) await tv.sendButton('UP');
+          else if (ent.includes('down')) await tv.sendButton('DOWN');
+          else if (ent.includes('left')) await tv.sendButton('LEFT');
+          else if (ent.includes('right')) await tv.sendButton('RIGHT');
+          else if (ent.includes('enter') || ent.includes('ok')) await tv.sendButton('ENTER');
+          else if (ent.includes('back')) await tv.sendButton('BACK');
+          else if (ent.includes('home')) await tv.sendButton('HOME');
+          else if (ent.includes('menu')) await tv.sendButton('MENU');
+          else if (ent.includes('exit')) await tv.sendButton('EXIT');
+          else if (ent.includes('vol_up') || ent.includes('volume_up')) await tv.volumeUp();
+          else if (ent.includes('vol_down') || ent.includes('volume_down')) await tv.volumeDown();
+          else if (ent.includes('mute')) await tv.setMute(!tv.getStatus().muted);
+        }
         return;
       }
 
-      // 2. Media Player Actions
+      // 3. Media Player Actions
       if (domain === 'media_player') {
         if (service === 'turn_on') await tv.turnOn();
         else if (service === 'turn_off') await tv.turnOff();
+        else if (service === 'toggle') {
+          if (tv.getStatus().connected) await tv.turnOff();
+          else await tv.turnOn();
+        }
         else if (service === 'volume_up') await tv.volumeUp();
         else if (service === 'volume_down') await tv.volumeDown();
         else if (service === 'volume_set' && service_data.volume_level !== undefined) {
@@ -564,13 +905,18 @@ class HomeAssistantBridge {
         else if (service === 'media_stop') await tv.stop();
         else if (service === 'media_next_track') await tv.fastForward();
         else if (service === 'media_previous_track') await tv.rewind();
+        else if (service === 'media_play_pause') await tv.play();
         return;
       }
 
-      // 3. Remote Commands
+      // 4. Remote Commands
       if (domain === 'remote') {
         if (service === 'turn_on') await tv.turnOn();
         else if (service === 'turn_off') await tv.turnOff();
+        else if (service === 'toggle') {
+          if (tv.getStatus().connected) await tv.turnOff();
+          else await tv.turnOn();
+        }
         else if (service === 'send_command') {
           const cmds = Array.isArray(service_data.command) ? service_data.command : [service_data.command];
           for (const cmd of cmds) {
@@ -580,13 +926,13 @@ class HomeAssistantBridge {
         return;
       }
 
-      // 4. Select Source Option
+      // 5. Select Source Option
       if (domain === 'select' && service === 'select_option' && service_data.option) {
         await this.launchSource(service_data.option);
         return;
       }
 
-      // 5. Virtual Keyboard Typing
+      // 6. Virtual Keyboard Typing
       if (domain === 'text' && service === 'set_value' && service_data.value) {
         await tv.sendText(service_data.value);
         return;
@@ -614,82 +960,144 @@ class HomeAssistantBridge {
   }
 
   async executeRemoteCommand(cmd) {
+    if (!cmd) return;
     const formatted = String(cmd).trim().toUpperCase();
+    console.log(`[HA-Bridge] Executing remote command: "${formatted}"`);
+
     switch (formatted) {
+      // D-Pad
       case 'UP':
       case 'DOWN':
       case 'LEFT':
       case 'RIGHT':
       case 'ENTER':
+      case 'OK':
+      case 'SELECT':
+      // Navigation
       case 'BACK':
       case 'HOME':
       case 'MENU':
+      case 'SETTINGS':
       case 'EXIT':
+      case 'INFO':
+      case 'GUIDE':
+      case 'CC':
+      case 'DASH':
+      // Numbers
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      // Colors
       case 'RED':
       case 'GREEN':
       case 'YELLOW':
       case 'BLUE':
-        return tv.sendButton(formatted);
+      // Input
+      case 'INPUT':
+      case 'INPUT_SOURCE':
+        return tv.sendButton(formatted === 'OK' || formatted === 'SELECT' ? 'ENTER' : formatted === 'SETTINGS' ? 'MENU' : formatted === 'INPUT_SOURCE' ? 'INPUT' : formatted);
+
+      // Volume
       case 'VOLUME_UP':
       case 'VOLUMEUP':
+      case 'VOLUP':
+      case 'VOL_UP':
         return tv.volumeUp();
       case 'VOLUME_DOWN':
       case 'VOLUMEDOWN':
+      case 'VOLDOWN':
+      case 'VOL_DOWN':
         return tv.volumeDown();
       case 'MUTE':
+      case 'VOLUMEMUTE':
+      case 'VOLUME_MUTE':
+      case 'TOGGLE_MUTE':
         return tv.setMute(!tv.getStatus().muted);
+
+      // Channels
       case 'CHANNEL_UP':
       case 'CHANNELUP':
+      case 'CHANUP':
+      case 'CHAN_UP':
         return tv.channelUp();
       case 'CHANNEL_DOWN':
       case 'CHANNELDOWN':
+      case 'CHANDOWN':
+      case 'CHAN_DOWN':
         return tv.channelDown();
+
+      // Playback
       case 'PLAY':
         return tv.play();
       case 'PAUSE':
         return tv.pause();
       case 'STOP':
         return tv.stop();
+      case 'REWIND':
+      case 'PREVIOUS':
+        return tv.rewind();
+      case 'FAST_FORWARD':
+      case 'FASTFORWARD':
+      case 'NEXT':
+        return tv.fastForward();
+
+      // Power
       case 'POWER':
       case 'POWER_OFF':
+      case 'POWEROFF':
+      case 'OFF':
         return tv.turnOff();
       case 'POWER_ON':
+      case 'POWERON':
+      case 'ON':
+      case 'WOL':
         return tv.turnOn();
+
+      // Screen Off / On
+      case 'SCREEN_OFF':
+      case 'SCREENOFF':
+        return tv.turnScreenOff();
+      case 'SCREEN_ON':
+      case 'SCREENON':
+        return tv.turnScreenOn();
+
+      // HDMI Inputs
+      case 'HDMI_1':
+      case 'HDMI1':
+        return tv.setInput('HDMI_1');
+      case 'HDMI_2':
+      case 'HDMI2':
+        return tv.setInput('HDMI_2');
+      case 'HDMI_3':
+      case 'HDMI3':
+        return tv.setInput('HDMI_3');
+
+      // Apps
+      case 'YOUTUBE':
+        return tv.openYoutube('');
+      case 'NETFLIX':
+        return tv.launchApp('netflix');
+      case 'SPOTIFY':
+        return tv.launchApp('spotify-beehive');
+      case 'BROWSER':
+      case 'WEB':
+        return tv.launchApp('com.webos.app.browser');
+      case 'LIVETV':
+      case 'LIVE_TV':
+        return tv.launchApp('com.webos.app.livetv');
+      case 'STORE':
+      case 'APP_STORE':
+        return tv.launchApp('com.webos.app.discovery');
+
       default:
         return tv.sendButton(formatted);
-    }
-  }
-
-  handleMqttMessage(topic, payload) {
-    // Also handle incoming MQTT command topics if broker is active
-    const deviceId = this.getDeviceId();
-    if (topic.startsWith(`${deviceId}/button/`)) {
-      const btnId = topic.split('/')[2];
-      const matchingBtn = {
-        power_on: () => tv.turnOn(),
-        power_off: () => tv.turnOff(),
-        screen_off: () => tv.turnScreenOff(),
-        screen_on: () => tv.turnScreenOn(),
-        dpad_up: () => tv.sendButton('UP'),
-        dpad_down: () => tv.sendButton('DOWN'),
-        dpad_left: () => tv.sendButton('LEFT'),
-        dpad_right: () => tv.sendButton('RIGHT'),
-        dpad_enter: () => tv.sendButton('ENTER'),
-        nav_back: () => tv.sendButton('BACK'),
-        nav_home: () => tv.sendButton('HOME'),
-        nav_menu: () => tv.sendButton('MENU'),
-        nav_exit: () => tv.sendButton('EXIT'),
-        vol_up: () => tv.volumeUp(),
-        vol_down: () => tv.volumeDown(),
-        vol_mute: () => tv.setMute(!tv.getStatus().muted),
-        chan_up: () => tv.channelUp(),
-        chan_down: () => tv.channelDown(),
-        app_youtube: () => tv.openYoutube(''),
-        app_netflix: () => tv.launchApp('netflix'),
-        app_spotify: () => tv.launchApp('spotify-beehive'),
-        app_browser: () => tv.launchApp('com.webos.app.browser')
-      }[btnId];
-      if (matchingBtn) matchingBtn();
     }
   }
 }
