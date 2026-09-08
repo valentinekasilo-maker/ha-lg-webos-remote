@@ -881,10 +881,42 @@ body {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   color: var(--text-dim);
+}
+
+.mute-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.mute-toggle-btn:hover {
+  color: var(--accent-cyan);
+}
+.mute-toggle-btn.muted {
+  color: var(--accent-red);
+}
+.mute-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+.slider-box .volume-level-display {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  min-width: 26px;
+  text-align: right;
 }
 
 .volume-slider {

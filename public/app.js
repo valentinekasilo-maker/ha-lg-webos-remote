@@ -81,17 +81,17 @@ function updateConnectionUI(status) {
   // Update volume & mute state if received
   if (typeof status.volume === 'number') {
     currentVolume = status.volume;
-    volDisplay.textContent = currentVolume;
-    volSlider.value = currentVolume;
+    if (volDisplay) volDisplay.textContent = currentVolume;
+    if (volSlider) volSlider.value = currentVolume;
   }
   if (typeof status.muted === 'boolean') {
     isMuted = status.muted;
-    if (isMuted) {
-      muteBtn.classList.add('muted');
-      muteIcon.className = 'fa-solid fa-volume-xmark';
-    } else {
-      muteBtn.classList.remove('muted');
-      muteIcon.className = 'fa-solid fa-volume-high';
+    if (muteBtn) {
+      if (isMuted) {
+        muteBtn.classList.add('muted');
+      } else {
+        muteBtn.classList.remove('muted');
+      }
     }
   }
 
@@ -284,14 +284,16 @@ if (muteBtn) bindFastTouch(muteBtn, () => socket.emit('volume', { action: 'toggl
 
 // Volume Slider
 let sliderTimeout = null;
-volSlider.addEventListener('input', (e) => {
-  const vol = parseInt(e.target.value, 10);
-  volDisplay.textContent = vol;
-  clearTimeout(sliderTimeout);
-  sliderTimeout = setTimeout(() => {
-    socket.emit('volume', { volume: vol });
-  }, 100);
-});
+if (volSlider) {
+  volSlider.addEventListener('input', (e) => {
+    const vol = parseInt(e.target.value, 10);
+    if (volDisplay) volDisplay.textContent = vol;
+    clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(() => {
+      socket.emit('volume', { volume: vol });
+    }, 100);
+  });
+}
 
 // Channel Up / Down via instant WebSocket
 const btnChUp = document.getElementById('btn-ch-up');

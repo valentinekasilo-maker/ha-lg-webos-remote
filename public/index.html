@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   
-  <link rel="stylesheet" href="style.css?v=2.5.0">
+  <link rel="stylesheet" href="style.css?v=2.6.0">
 </head>
 <body>
   <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
@@ -211,48 +211,13 @@
         </div>
       </div>
 
-      <!-- Volume & Channel Rockers -->
-      <div class="rockers-row">
-        <!-- Volume Column -->
-        <div class="rocker-card">
-          <div class="rocker-label"><svg class="icon"><use href="#icon-vol-high"/></svg> VOL</div>
-          <button class="rocker-btn" id="btn-vol-up" title="Volume Up">
-            <svg class="icon"><use href="#icon-plus"/></svg>
-          </button>
-          <div class="volume-level-display" id="vol-display">--</div>
-          <button class="rocker-btn" id="btn-vol-down" title="Volume Down">
-            <svg class="icon"><use href="#icon-minus"/></svg>
-          </button>
-        </div>
-
-        <!-- Center Mute / Info -->
-        <div class="center-controls">
-          <button class="circle-btn mute-btn" id="btn-mute" title="Toggle Mute">
-            <svg class="icon" id="mute-icon"><use href="#icon-mute"/></svg>
-          </button>
-          <button class="circle-btn" data-key="INFO" id="btn-info" title="TV Info / Banner">
-            <svg class="icon"><use href="#icon-info"/></svg>
-          </button>
-        </div>
-
-        <!-- Channel Column -->
-        <div class="rocker-card">
-          <div class="rocker-label"><svg class="icon"><use href="#icon-tv"/></svg> CH</div>
-          <button class="rocker-btn" id="btn-ch-up" title="Channel Up">
-            <svg class="icon"><use href="#icon-up"/></svg>
-          </button>
-          <div class="ch-indicator">#</div>
-          <button class="rocker-btn" id="btn-ch-down" title="Channel Down">
-            <svg class="icon"><use href="#icon-down"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Volume Slider -->
+      <!-- Volume Slider & Mute -->
       <div class="slider-box">
-        <svg class="icon"><use href="#icon-vol-low"/></svg>
+        <button class="mute-toggle-btn" id="btn-mute" title="Toggle Mute">
+          <svg class="icon" id="mute-icon"><use href="#icon-mute"/></svg>
+        </button>
         <input type="range" id="vol-slider" min="0" max="100" value="20" class="volume-slider" title="Set Volume">
-        <svg class="icon"><use href="#icon-vol-high"/></svg>
+        <span class="volume-level-display" id="vol-display">20</span>
       </div>
 
       <!-- Media Controls -->
@@ -479,6 +444,6 @@
 
   <!-- Socket.io client script & app logic -->
   <script src="socket.io/socket.io.js"></script>
-  <script src="app.js?v=2.5.0"></script>
+  <script src="app.js?v=2.6.0"></script>
 </body>
 </html>
