@@ -34,6 +34,20 @@
   user-select: none;
 }
 
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
 body {
   font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-primary);
@@ -431,6 +445,228 @@ body {
 }
 .nav-btn:active {
   transform: scale(0.94);
+}
+
+/* ===================================================
+   🖱️ NAVIGATION MODE SWITCHER & TOUCHPAD STYLES
+   =================================================== */
+
+.nav-mode-switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--glass-border);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin: 6px 0;
+}
+
+.mode-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mode-tab .icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: var(--text-muted);
+  transition: fill 0.2s ease;
+}
+.mode-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+.mode-tab:hover .icon {
+  fill: var(--text-main);
+}
+.mode-tab.active {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.22), rgba(61, 126, 255, 0.28)) !important;
+  border-color: rgba(0, 229, 255, 0.5) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(0, 229, 255, 0.25);
+}
+.mode-tab.active .icon {
+  fill: var(--accent-cyan) !important;
+}
+
+/* Touchpad Container & Surface */
+.touchpad-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 8px 0;
+  animation: fadeIn 0.25s ease;
+}
+.touchpad-container.hidden {
+  display: none !important;
+}
+
+.touchpad-surface {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  min-height: 220px;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 28, 48, 0.75), rgba(10, 14, 24, 0.95));
+  border: 2px solid rgba(0, 229, 255, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: crosshair;
+  touch-action: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.touchpad-surface.active {
+  border-color: var(--accent-cyan);
+  box-shadow: inset 0 0 35px rgba(0, 229, 255, 0.18), 0 0 20px rgba(0, 229, 255, 0.25);
+}
+
+.touchpad-crosshair {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.touchpad-tracker {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-cyan), rgba(0, 229, 255, 0.2));
+  box-shadow: 0 0 16px var(--accent-cyan);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.05s linear;
+}
+.touchpad-surface.active .touchpad-tracker {
+  opacity: 1;
+}
+
+.touchpad-hint {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+}
+.touchpad-hint .icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: var(--text-muted);
+}
+
+/* Touchpad Action Buttons Bar */
+.touchpad-actions-bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.tp-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 11px 8px;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.tp-btn .icon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+.tp-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.tp-btn:active {
+  transform: scale(0.95);
+}
+.tp-btn.primary {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(61, 126, 255, 0.35)) !important;
+  border-color: var(--accent-cyan) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
+}
+.tp-btn.primary:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.4), rgba(61, 126, 255, 0.5)) !important;
+}
+
+/* Touchpad Sensitivity Row */
+.tp-sensitivity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+.tp-sens-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.tp-sens-pills {
+  display: flex;
+  gap: 4px;
+}
+.sens-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sens-pill:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.12);
+}
+.sens-pill.active {
+  background: var(--accent-cyan) !important;
+  color: #031422 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
 
 /* DPAD Navigation Cluster */
@@ -1496,202 +1732,5 @@ body {
 .ai-step-badge.fail {
   background: rgba(255, 51, 102, 0.18);
   color: var(--accent-red);
-}
-
-/* ===================================================
-   🖱️ NAVIGATION MODE SWITCHER & TOUCHPAD STYLES
-   =================================================== */
-
-.nav-mode-switcher {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--glass-border);
-  padding: 4px;
-  border-radius: var(--radius-md);
-  margin: 4px 0;
-}
-
-.mode-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  color: var(--text-muted);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.mode-tab:hover {
-  color: var(--text-main);
-}
-.mode-tab.active {
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(61, 126, 255, 0.25));
-  border-color: rgba(0, 229, 255, 0.4);
-  color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
-}
-.mode-tab.active .icon {
-  fill: var(--accent-cyan);
-}
-
-/* Touchpad Container & Surface */
-.touchpad-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: fadeIn 0.25s ease;
-}
-.touchpad-container.hidden {
-  display: none !important;
-}
-
-.touchpad-surface {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  background: radial-gradient(circle at 50% 50%, rgba(20, 28, 48, 0.7), rgba(10, 14, 24, 0.95));
-  border: 2px solid rgba(0, 229, 255, 0.2);
-  border-radius: var(--radius-lg);
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
-  cursor: crosshair;
-  touch-action: none;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.touchpad-surface.active {
-  border-color: var(--accent-cyan);
-  box-shadow: inset 0 0 35px rgba(0, 229, 255, 0.15), 0 0 20px rgba(0, 229, 255, 0.2);
-}
-
-.touchpad-crosshair {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
-  pointer-events: none;
-}
-
-.touchpad-tracker {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-cyan), rgba(0, 229, 255, 0.2));
-  box-shadow: 0 0 15px var(--accent-cyan);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.05s linear;
-}
-.touchpad-surface.active .touchpad-tracker {
-  opacity: 1;
-}
-
-.touchpad-hint {
-  position: absolute;
-  bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0.45);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(8px);
-}
-
-/* Touchpad Action Buttons Bar */
-.touchpad-actions-bar {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-.tp-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: 10px 6px;
-  color: var(--text-main);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: all 0.15s ease;
-}
-.tp-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
-}
-.tp-btn:active {
-  transform: scale(0.95);
-}
-.tp-btn.primary {
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(61, 126, 255, 0.3));
-  border-color: var(--accent-cyan);
-  color: #fff;
-}
-.tp-btn.primary:hover {
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(61, 126, 255, 0.45));
-}
-
-/* Touchpad Sensitivity Row */
-.tp-sensitivity-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-}
-.tp-sens-label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.tp-sens-pills {
-  display: flex;
-  gap: 4px;
-}
-.sens-pill {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid transparent;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.sens-pill:hover {
-  color: var(--text-main);
-}
-.sens-pill.active {
-  background: var(--accent-cyan);
-  color: #031422;
-  font-weight: 700;
 }
 
