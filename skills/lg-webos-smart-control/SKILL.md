@@ -20,8 +20,8 @@ When this skill is executed or invoked, Lucia AI will:
 
 ```env
 # LG webOS Smart TV Details
-TV_IP=192.168.50.145
-TV_MAC=DC:03:98:69:CC:9A
+TV_IP=192.168.50.84
+TV_MAC=90:7A:BE:96:CD:E0
 
 # Web Remote & REST API Server Port
 PORT=8080
@@ -30,9 +30,9 @@ PORT=8080
 `config.json`:
 ```json
 {
-  "tvIp": "192.168.50.145",
-  "tvMac": "DC:03:98:69:CC:9A",
-  "clientKey": "7d5d8bb32bcaffe8539149791e4cb037",
+  "tvIp": "192.168.50.84",
+  "tvMac": "90:7A:BE:96:CD:E0",
+  "clientKey": "",
   "saveKey": true,
   "port": 3000,
   "webServerPort": 8080,
@@ -214,8 +214,8 @@ Lucia AI translates user voice/chat prompts into the following HTTP requests:
     "currentApp": "com.webos.app.home",
     "installedApps": [ ... ],
     "config": {
-      "tvIp": "192.168.50.145",
-      "tvMac": "DC:03:98:69:CC:9A",
+      "tvIp": "192.168.50.84",
+      "tvMac": "90:7A:BE:96:CD:E0",
       "hasKey": true
     }
   }

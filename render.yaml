@@ -10,10 +10,10 @@ services:
       - key: NODE_ENV
         value: production
       - key: TV_IP
-        value: 192.168.50.145
+        value: 192.168.50.84
       - key: TV_MAC
-        value: DC:03:98:69:CC:9A
+        value: 90:7A:BE:96:CD:E0
       - key: TV_CLIENT_KEY
-        value: 7d5d8bb32bcaffe8539149791e4cb037
+        value: ""
       - key: PORT
         value: 10000

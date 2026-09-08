@@ -27,13 +27,13 @@ class HomeAssistantBridge {
 
   getDeviceId() {
     const config = getConfig();
-    const mac = (config.tvMac || 'DC:03:98:69:CC:9A').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    const mac = (config.tvMac || '90:7A:BE:96:CD:E0').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
     return `lg_tv_${mac}`;
   }
 
   getDevicePayload() {
     const config = getConfig();
-    const mac = config.tvMac || 'DC:03:98:69:CC:9A';
+    const mac = config.tvMac || '90:7A:BE:96:CD:E0';
     const cleanMac = mac.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     return {
       identifiers: [`lg_webos_${cleanMac}`],

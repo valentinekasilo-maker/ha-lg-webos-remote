@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const tv = require('./src/lgtv');
 const haBridge = require('./src/ha-bridge');
+const aiAssistant = require('./src/ai-assistant');
 const { getConfig, updateConfig } = require('./src/config');
 
 function getLocalIPs() {
@@ -289,10 +290,43 @@ app.post('/api/toast', async (req, res) => {
   }
 });
 
+// AI Assistant Natural Language Processing Route
+app.post('/api/ai/command', async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'prompt is required' });
+  try {
+    const result = await aiAssistant.processCommand(prompt);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Touchpad / Pointer REST Endpoints
+app.post('/api/mouse/move', (req, res) => {
+  const { dx, dy, drag } = req.body;
+  tv.sendMove(dx || 0, dy || 0, drag ? 1 : 0);
+  res.json({ success: true });
+});
+
+app.post('/api/mouse/click', async (req, res) => {
+  try {
+    const result = await tv.sendClick();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/mouse/scroll', (req, res) => {
+  const { dx, dy } = req.body;
+  tv.sendScroll(dx || 0, dy || 0);
+  res.json({ success: true });
+});
+
 // Configuration Settings
 app.get('/api/config', (req, res) => {
   const cfg = getConfig();
-  // Hide full clientKey for security if needed, or return boolean
   res.json({
     tvIp: cfg.tvIp,
     tvMac: cfg.tvMac,
@@ -309,7 +343,6 @@ app.post('/api/config', (req, res) => {
   if (tvMac !== undefined) updates.tvMac = tvMac.trim();
 
   const updated = updateConfig(updates);
-  // Trigger reconnection with new IP/settings
   tv.connect();
   res.json({ success: true, config: updated });
 });
@@ -319,6 +352,38 @@ app.post('/api/config', (req, res) => {
 io.on('connection', (socket) => {
   // Send initial status on client connection
   socket.emit('status', tv.getStatus());
+
+  // AI Assistant Socket Command
+  socket.on('ai:command', async (prompt, ack) => {
+    try {
+      const result = await aiAssistant.processCommand(prompt);
+      if (ack) ack(result);
+    } catch (err) {
+      if (ack) ack({ success: false, error: err.message });
+    }
+  });
+
+  // Touchpad Mouse Pointer Events
+  socket.on('mouse:move', (data) => {
+    if (data && typeof data.dx === 'number' && typeof data.dy === 'number') {
+      tv.sendMove(data.dx, data.dy, data.drag ? 1 : 0);
+    }
+  });
+
+  socket.on('mouse:click', async (ack) => {
+    try {
+      const result = await tv.sendClick();
+      if (ack) ack({ success: true, result });
+    } catch (err) {
+      if (ack) ack({ error: err.message });
+    }
+  });
+
+  socket.on('mouse:scroll', (data) => {
+    if (data) {
+      tv.sendScroll(data.dx || 0, data.dy || 0);
+    }
+  });
 
   // Allow realtime button clicks via WebSocket
   socket.on('button', async (key, ack) => {

@@ -32,8 +32,8 @@ This integration registers your LG TV as a **first-class physical Device** in Ho
 In the Add-on **Configuration** tab:
 
 ```yaml
-tv_ip: "192.168.50.145" # Your LG TV IP address
-tv_mac: "DC:03:98:69:CC:9A" # Your LG TV MAC address (for Wake-on-LAN power on)
+tv_ip: "192.168.50.84" # Your LG TV IP address
+tv_mac: "90:7A:BE:96:CD:E0" # Your LG TV MAC address (for Wake-on-LAN power on)
 mqtt_host: "core-mosquitto" # Mosquitto MQTT broker hostname
 mqtt_port: 1883
 device_name: "LG webOS Smart TV"

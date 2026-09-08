@@ -44,7 +44,10 @@ class LGTVController extends EventEmitter {
       this.lgtv = null;
     }
 
-    const wsUrl = `ws://${config.tvIp}:${config.port || 3000}`;
+    const port = config.port || 3001;
+    const isSsl = config.ssl !== undefined ? Boolean(config.ssl) : (port === 3001 || !config.port);
+    const wsProto = isSsl ? 'wss' : 'ws';
+    const wsUrl = `${wsProto}://${config.tvIp}:${port}`;
     console.log(`[LGTV] Connecting to ${wsUrl}...`);
     this.isConnecting = true;
     this.pairingPrompt = false;
@@ -54,11 +57,12 @@ class LGTVController extends EventEmitter {
     try {
       this.lgtv = lgtv2({
         url: wsUrl,
-        timeout: 8000,
+        timeout: 10000,
         reconnect: config.reconnectInterval || 5000,
         clientKey: config.clientKey || undefined,
+        wsOptions: { rejectUnauthorized: false },
         saveKey: (key, cb) => {
-          console.log('[LGTV] Received and saved client pairing key.');
+          console.log('[LGTV] Received and saved client pairing key:', key);
           saveClientKey(key);
           if (cb) cb(null);
         }
@@ -242,7 +246,17 @@ class LGTVController extends EventEmitter {
   sendMove(dx, dy, drag = 0) {
     if (!this.pointerSocket) return;
     try {
-      this.pointerSocket.send('move', { dx, dy, drag });
+      this.pointerSocket.send('move', { dx: Math.round(dx), dy: Math.round(dy), drag: drag ? 1 : 0 });
+    } catch (e) {}
+  }
+
+  /**
+   * Scroll the active page / view with pointer wheel
+   */
+  sendScroll(dx = 0, dy = 0) {
+    if (!this.pointerSocket) return;
+    try {
+      this.pointerSocket.send('scroll', { dx: Math.round(dx), dy: Math.round(dy) });
     } catch (e) {}
   }
 

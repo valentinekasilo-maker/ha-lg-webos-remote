@@ -70,8 +70,8 @@ class LGWebOSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema(
             {
-                vol.Required(CONF_HOST, default="192.168.50.145"): cv.string,
-                vol.Optional(CONF_MAC, default="DC:03:98:69:CC:9A"): cv.string,
+                vol.Required(CONF_HOST, default="192.168.50.84"): cv.string,
+                vol.Optional(CONF_MAC, default="90:7A:BE:96:CD:E0"): cv.string,
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
             }
         )

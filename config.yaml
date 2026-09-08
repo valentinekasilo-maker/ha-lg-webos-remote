@@ -26,8 +26,8 @@ ports:
 ports_description:
   8080/tcp: "Web Remote UI & REST API"
 options:
-  tv_ip: "192.168.50.145"
-  tv_mac: "DC:03:98:69:CC:9A"
+  tv_ip: "192.168.50.84"
+  tv_mac: "90:7A:BE:96:CD:E0"
   mqtt_host: "core-mosquitto"
   mqtt_port: 1883
   mqtt_user: ""

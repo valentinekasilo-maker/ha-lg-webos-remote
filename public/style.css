@@ -1200,3 +1200,498 @@ body {
   border-color: rgba(0, 230, 118, 0.4);
   color: var(--accent-green);
 }
+
+/* ===================================================
+   🤖 AI ASSISTANT & VOICE CONTROLLER STYLES
+   =================================================== */
+
+.ai-pulse-btn {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 0.25), rgba(0, 229, 255, 0.25)) !important;
+  border-color: rgba(157, 78, 221, 0.5) !important;
+  color: #fff !important;
+  position: relative;
+}
+.ai-pulse-btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid var(--accent-cyan);
+  opacity: 0;
+  animation: aiRingPulse 2.5s infinite ease-out;
+}
+@keyframes aiRingPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.ai-assistant-section {
+  padding: 0 20px;
+  margin-top: 14px;
+}
+
+.ai-card {
+  background: linear-gradient(145deg, rgba(20, 28, 48, 0.8), rgba(12, 18, 32, 0.95));
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-purple), var(--accent-cyan), transparent);
+  animation: aiBorderFlow 3s infinite linear;
+}
+@keyframes aiBorderFlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.ai-pulsing-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-purple);
+  box-shadow: 0 0 10px var(--accent-purple);
+  animation: aiOrbGlow 1.8s infinite ease-in-out;
+}
+@keyframes aiOrbGlow {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 8px var(--accent-cyan)); }
+}
+
+.ai-sparkle-icon {
+  width: 1rem;
+  height: 1rem;
+  fill: var(--accent-cyan);
+}
+
+.ai-status-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ai-prompt-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 4px 6px;
+  transition: all 0.2s ease;
+}
+.ai-prompt-wrap:focus-within {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+}
+
+.ai-prompt-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  padding: 8px;
+  outline: none;
+}
+.ai-prompt-wrap input::placeholder {
+  color: var(--text-dim);
+}
+
+.ai-mic-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.ai-mic-btn:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+.ai-mic-btn.listening {
+  background: var(--accent-red);
+  color: #fff;
+  animation: micListenPulse 1s infinite alternate;
+}
+@keyframes micListenPulse {
+  0% { transform: scale(1); box-shadow: 0 0 4px var(--accent-red); }
+  100% { transform: scale(1.15); box-shadow: 0 0 18px var(--accent-red); }
+}
+
+.ai-send-btn {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.ai-send-btn:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+}
+.ai-send-btn:active {
+  transform: scale(0.92);
+}
+
+/* Voice Equalizer Waveform */
+.ai-voice-wave {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 51, 102, 0.12);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  border-radius: var(--radius-sm);
+  animation: slideDown 0.25s ease;
+}
+.ai-voice-wave.hidden {
+  display: none;
+}
+.wave-bar {
+  width: 3px;
+  height: 16px;
+  background: var(--accent-red);
+  border-radius: 2px;
+  animation: waveBounce 0.8s infinite ease-in-out;
+}
+.wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.wave-bar:nth-child(5) { animation-delay: 0.6s; }
+@keyframes waveBounce {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+.wave-text {
+  font-size: 0.76rem;
+  color: #ff80ab;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+/* Suggestion Chips Carousel */
+.ai-chips-carousel {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.ai-chips-carousel::-webkit-scrollbar {
+  display: none;
+}
+.ai-chip {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.ai-chip:hover {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--accent-cyan);
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+.ai-chip:active {
+  transform: scale(0.95);
+}
+
+/* Live Execution Timeline */
+.ai-response-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: slideDown 0.25s ease;
+}
+.ai-response-box.hidden {
+  display: none;
+}
+.ai-res-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+.ai-res-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ai-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--text-main);
+}
+.ai-step-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.ai-step-badge.ok {
+  background: rgba(0, 230, 118, 0.18);
+  color: var(--accent-green);
+}
+.ai-step-badge.fail {
+  background: rgba(255, 51, 102, 0.18);
+  color: var(--accent-red);
+}
+
+/* ===================================================
+   🖱️ NAVIGATION MODE SWITCHER & TOUCHPAD STYLES
+   =================================================== */
+
+.nav-mode-switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin: 4px 0;
+}
+
+.mode-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mode-tab:hover {
+  color: var(--text-main);
+}
+.mode-tab.active {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(61, 126, 255, 0.25));
+  border-color: rgba(0, 229, 255, 0.4);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
+}
+.mode-tab.active .icon {
+  fill: var(--accent-cyan);
+}
+
+/* Touchpad Container & Surface */
+.touchpad-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.25s ease;
+}
+.touchpad-container.hidden {
+  display: none !important;
+}
+
+.touchpad-surface {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 28, 48, 0.7), rgba(10, 14, 24, 0.95));
+  border: 2px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: crosshair;
+  touch-action: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.touchpad-surface.active {
+  border-color: var(--accent-cyan);
+  box-shadow: inset 0 0 35px rgba(0, 229, 255, 0.15), 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.touchpad-crosshair {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.touchpad-tracker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-cyan), rgba(0, 229, 255, 0.2));
+  box-shadow: 0 0 15px var(--accent-cyan);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.05s linear;
+}
+.touchpad-surface.active .touchpad-tracker {
+  opacity: 1;
+}
+
+.touchpad-hint {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+}
+
+/* Touchpad Action Buttons Bar */
+.touchpad-actions-bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.tp-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 6px;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+.tp-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+.tp-btn:active {
+  transform: scale(0.95);
+}
+.tp-btn.primary {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(61, 126, 255, 0.3));
+  border-color: var(--accent-cyan);
+  color: #fff;
+}
+.tp-btn.primary:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(61, 126, 255, 0.45));
+}
+
+/* Touchpad Sensitivity Row */
+.tp-sensitivity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+}
+.tp-sens-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.tp-sens-pills {
+  display: flex;
+  gap: 4px;
+}
+.sens-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sens-pill:hover {
+  color: var(--text-main);
+}
+.sens-pill.active {
+  background: var(--accent-cyan);
+  color: #031422;
+  font-weight: 700;
+}
+

@@ -615,3 +615,378 @@ function triggerBtnVisual(elementId) {
   }
 }
 
+// ===================================================
+// 🤖 AI ASSISTANT & NATURAL LANGUAGE CONTROLLER
+// ===================================================
+
+const btnAiHeader = document.getElementById('btn-ai-header');
+const aiSection = document.getElementById('ai-section');
+const aiPromptInput = document.getElementById('ai-prompt-input');
+const btnAiSend = document.getElementById('btn-ai-send');
+const btnAiMic = document.getElementById('btn-ai-mic');
+const aiVoiceWave = document.getElementById('ai-voice-wave');
+const aiResponseBox = document.getElementById('ai-response-box');
+const aiResText = document.getElementById('ai-res-text');
+const aiResSteps = document.getElementById('ai-res-steps');
+const aiStatusLabel = document.getElementById('ai-status-label');
+
+if (btnAiHeader) {
+  btnAiHeader.addEventListener('click', () => {
+    haptic();
+    if (aiSection) {
+      aiSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (aiPromptInput) aiPromptInput.focus();
+    }
+  });
+}
+
+// AI Command Execution Function
+async function executeAI(promptText) {
+  const prompt = String(promptText || '').trim();
+  if (!prompt) return;
+
+  haptic();
+  if (aiResponseBox) aiResponseBox.classList.remove('hidden');
+  if (aiResText) aiResText.textContent = `Analyzing: "${prompt}"...`;
+  if (aiResSteps) aiResSteps.innerHTML = '<div class="ai-step-item"><span class="ai-step-badge ok">AI</span> Processing intent...</div>';
+  if (aiStatusLabel) aiStatusLabel.textContent = 'Executing...';
+
+  try {
+    let result;
+    if (socket && socket.connected) {
+      result = await new Promise((resolve) => {
+        socket.emit('ai:command', prompt, (res) => resolve(res));
+        setTimeout(() => resolve(null), 8000);
+      });
+    }
+    if (!result) {
+      result = await apiCall('/api/ai/command', 'POST', { prompt });
+    }
+
+    if (result) {
+      if (aiResText) aiResText.textContent = result.reply || 'Command completed!';
+      if (aiResSteps && Array.isArray(result.steps) && result.steps.length > 0) {
+        aiResSteps.innerHTML = result.steps.map((s) => `
+          <div class="ai-step-item">
+            <span class="ai-step-badge ${s.success ? 'ok' : 'fail'}">${s.success ? '✓' : '✗'} ${s.action}</span>
+            <span>${s.detail || ''}</span>
+          </div>
+        `).join('');
+      } else if (aiResSteps) {
+        aiResSteps.innerHTML = '';
+      }
+      showAlert(result.reply || 'AI command executed', result.success ? 'info' : 'warning');
+    } else {
+      if (aiResText) aiResText.textContent = 'Command sent to TV.';
+    }
+  } catch (err) {
+    if (aiResText) aiResText.textContent = `Error: ${err.message}`;
+  } finally {
+    if (aiStatusLabel) aiStatusLabel.textContent = 'Voice & Smart Control';
+  }
+}
+
+if (btnAiSend && aiPromptInput) {
+  btnAiSend.addEventListener('click', () => {
+    executeAI(aiPromptInput.value);
+  });
+
+  aiPromptInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      executeAI(aiPromptInput.value);
+    }
+  });
+}
+
+// Suggestion Chips
+document.querySelectorAll('.ai-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    const prompt = chip.getAttribute('data-prompt');
+    if (prompt) {
+      if (aiPromptInput) aiPromptInput.value = prompt;
+      executeAI(prompt);
+    }
+  });
+});
+
+// Web Speech API Voice Dictation
+let recognition = null;
+let isRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  try {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRec();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isRecording = true;
+      if (btnAiMic) btnAiMic.classList.add('listening');
+      if (aiVoiceWave) aiVoiceWave.classList.remove('hidden');
+      if (aiStatusLabel) aiStatusLabel.textContent = 'Listening...';
+      haptic();
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      if (aiPromptInput) aiPromptInput.value = transcript;
+      executeAI(transcript);
+    };
+
+    recognition.onerror = (e) => {
+      console.warn('Speech recognition notice:', e.error);
+      stopVoice();
+    };
+
+    recognition.onend = () => {
+      stopVoice();
+    };
+  } catch (e) {
+    console.warn('Speech init notice:', e.message);
+  }
+}
+
+function stopVoice() {
+  isRecording = false;
+  if (btnAiMic) btnAiMic.classList.remove('listening');
+  if (aiVoiceWave) aiVoiceWave.classList.add('hidden');
+  if (aiStatusLabel) aiStatusLabel.textContent = 'Voice & Smart Control';
+}
+
+if (btnAiMic) {
+  btnAiMic.addEventListener('click', () => {
+    if (!recognition) {
+      showAlert('⚠️ Voice speech recognition is supported in Chrome, Edge & Android browsers.', 'warning');
+      return;
+    }
+    if (isRecording) {
+      recognition.stop();
+    } else {
+      try {
+        recognition.start();
+      } catch (e) {
+        recognition.stop();
+      }
+    }
+  });
+}
+
+// ===================================================
+// 🖱️ TOUCHPAD AIR MOUSE & D-PAD MODE SWITCHER
+// ===================================================
+
+const modeBtnDpad = document.getElementById('mode-btn-dpad');
+const modeBtnTouchpad = document.getElementById('mode-btn-touchpad');
+const dpadView = document.getElementById('dpad-view');
+const touchpadView = document.getElementById('touchpad-view');
+const touchpadSurface = document.getElementById('touchpad-surface');
+const touchpadTracker = document.getElementById('touchpad-tracker');
+
+function switchNavMode(mode) {
+  haptic();
+  if (mode === 'touchpad') {
+    if (modeBtnTouchpad) modeBtnTouchpad.classList.add('active');
+    if (modeBtnDpad) modeBtnDpad.classList.remove('active');
+    if (dpadView) dpadView.classList.add('hidden');
+    if (touchpadView) touchpadView.classList.remove('hidden');
+    localStorage.setItem('lg_nav_mode', 'touchpad');
+  } else {
+    if (modeBtnDpad) modeBtnDpad.classList.add('active');
+    if (modeBtnTouchpad) modeBtnTouchpad.classList.remove('active');
+    if (touchpadView) touchpadView.classList.add('hidden');
+    if (dpadView) dpadView.classList.remove('hidden');
+    localStorage.setItem('lg_nav_mode', 'dpad');
+  }
+}
+
+if (modeBtnDpad && modeBtnTouchpad) {
+  modeBtnDpad.addEventListener('click', () => switchNavMode('dpad'));
+  modeBtnTouchpad.addEventListener('click', () => switchNavMode('touchpad'));
+
+  // Restore saved preference if any
+  const savedMode = localStorage.getItem('lg_nav_mode');
+  if (savedMode === 'touchpad') switchNavMode('touchpad');
+}
+
+// Sensitivity Settings
+let touchpadSensitivity = parseFloat(localStorage.getItem('lg_tp_sens') || '1.0');
+document.querySelectorAll('.sens-pill').forEach((pill) => {
+  const sens = parseFloat(pill.getAttribute('data-sens'));
+  if (sens === touchpadSensitivity) {
+    document.querySelectorAll('.sens-pill').forEach((p) => p.classList.remove('active'));
+    pill.classList.add('active');
+  }
+  pill.addEventListener('click', () => {
+    haptic();
+    touchpadSensitivity = sens;
+    localStorage.setItem('lg_tp_sens', String(sens));
+    document.querySelectorAll('.sens-pill').forEach((p) => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+});
+
+// Touchpad Pointer Tracking & Gestures
+if (touchpadSurface) {
+  let isPointerDown = false;
+  let lastX = 0;
+  let lastY = 0;
+  let startX = 0;
+  let startY = 0;
+  let startTime = 0;
+  let moveDistance = 0;
+  let isDragging = false;
+  let lastTapTime = 0;
+
+  let moveAccumulatorX = 0;
+  let moveAccumulatorY = 0;
+  let sendTimer = null;
+
+  function flushMove() {
+    if (moveAccumulatorX !== 0 || moveAccumulatorY !== 0) {
+      socket.emit('mouse:move', {
+        dx: moveAccumulatorX,
+        dy: moveAccumulatorY,
+        drag: isDragging ? 1 : 0
+      });
+      moveAccumulatorX = 0;
+      moveAccumulatorY = 0;
+    }
+  }
+
+  // Pointer Down
+  touchpadSurface.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    isPointerDown = true;
+    touchpadSurface.classList.add('active');
+    try { touchpadSurface.setPointerCapture(e.pointerId); } catch (err) {}
+
+    const rect = touchpadSurface.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const relY = e.clientY - rect.top;
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+    startX = e.clientX;
+    startY = e.clientY;
+    startTime = Date.now();
+    moveDistance = 0;
+
+    // Double tap check for drag mode
+    const timeSinceLastTap = Date.now() - lastTapTime;
+    if (timeSinceLastTap < 280) {
+      isDragging = true;
+      haptic();
+    } else {
+      isDragging = false;
+    }
+    lastTapTime = Date.now();
+
+    if (touchpadTracker) {
+      touchpadTracker.style.left = `${relX}px`;
+      touchpadTracker.style.top = `${relY}px`;
+    }
+  });
+
+  // Pointer Move
+  touchpadSurface.addEventListener('pointermove', (e) => {
+    if (!isPointerDown) return;
+    e.preventDefault();
+
+    const dx = (e.clientX - lastX) * touchpadSensitivity;
+    const dy = (e.clientY - lastY) * touchpadSensitivity;
+
+    moveDistance += Math.hypot(e.clientX - lastX, e.clientY - lastY);
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    moveAccumulatorX += dx;
+    moveAccumulatorY += dy;
+
+    if (!sendTimer) {
+      sendTimer = setTimeout(() => {
+        flushMove();
+        sendTimer = null;
+      }, 16); // ~60 FPS
+    }
+
+    const rect = touchpadSurface.getBoundingClientRect();
+    const relX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const relY = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+
+    if (touchpadTracker) {
+      touchpadTracker.style.left = `${relX}px`;
+      touchpadTracker.style.top = `${relY}px`;
+    }
+  });
+
+  // Pointer Up
+  touchpadSurface.addEventListener('pointerup', (e) => {
+    if (!isPointerDown) return;
+    isPointerDown = false;
+    touchpadSurface.classList.remove('active');
+    try { touchpadSurface.releasePointerCapture(e.pointerId); } catch (err) {}
+
+    flushMove();
+
+    const duration = Date.now() - startTime;
+    // If short duration and minimal movement, trigger Click
+    if (duration < 300 && moveDistance < 10) {
+      haptic();
+      socket.emit('mouse:click');
+      if (touchpadTracker) {
+        touchpadTracker.style.transform = 'translate(-50%, -50%) scale(1.6)';
+        setTimeout(() => {
+          if (touchpadTracker) touchpadTracker.style.transform = 'translate(-50%, -50%)';
+        }, 150);
+      }
+    }
+    isDragging = false;
+  });
+
+  touchpadSurface.addEventListener('pointercancel', () => {
+    isPointerDown = false;
+    touchpadSurface.classList.remove('active');
+    flushMove();
+    isDragging = false;
+  });
+
+  // Two-Finger Touch Scroll Gesture
+  let lastTouchY = 0;
+  touchpadSurface.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const touchY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      if (lastTouchY) {
+        const deltaY = (touchY - lastTouchY) * 2;
+        socket.emit('mouse:scroll', { dy: -deltaY });
+      }
+      lastTouchY = touchY;
+    }
+  }, { passive: false });
+
+  touchpadSurface.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) lastTouchY = 0;
+  });
+
+  // Wheel event for desktop mouse over trackpad
+  touchpadSurface.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    socket.emit('mouse:scroll', { dy: e.deltaY > 0 ? 20 : -20 });
+  }, { passive: false });
+}
+
+// Touchpad Action Buttons
+const tpClick = document.getElementById('tp-click');
+const tpScrollUp = document.getElementById('tp-scroll-up');
+const tpScrollDown = document.getElementById('tp-scroll-down');
+const tpBack = document.getElementById('tp-back');
+
+if (tpClick) tpClick.addEventListener('click', () => { haptic(); socket.emit('mouse:click'); });
+if (tpScrollUp) tpScrollUp.addEventListener('click', () => { haptic(); socket.emit('mouse:scroll', { dy: -25 }); });
+if (tpScrollDown) tpScrollDown.addEventListener('click', () => { haptic(); socket.emit('mouse:scroll', { dy: 25 }); });
+if (tpBack) tpBack.addEventListener('click', () => sendKey('BACK'));
+
+

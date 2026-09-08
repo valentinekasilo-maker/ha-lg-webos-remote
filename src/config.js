@@ -14,7 +14,7 @@ const defaultDefaults = {
   tvMac: process.env.TV_MAC || '',
   clientKey: process.env.TV_CLIENT_KEY || process.env.CLIENT_KEY || '',
   saveKey: true,
-  port: parseInt(process.env.TV_PORT, 10) || 3000,
+  port: parseInt(process.env.TV_PORT, 10) || 3001,
   webServerPort: parseInt(process.env.PORT, 10) || 8080,
   reconnectInterval: 5000,
   

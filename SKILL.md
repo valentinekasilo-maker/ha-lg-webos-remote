@@ -20,9 +20,9 @@ When this skill is executed or invoked, Lucia AI will:
 
 ```env
 # LG webOS Smart TV Details
-TV_IP=192.168.50.145
-TV_MAC=DC:03:98:69:CC:9A
-TV_CLIENT_KEY=7d5d8bb32bcaffe8539149791e4cb037
+TV_IP=192.168.50.84
+TV_MAC=90:7A:BE:96:CD:E0
+TV_CLIENT_KEY=
 
 # Web Remote & REST API Server Port
 PORT=8080
@@ -34,9 +34,9 @@ CLOUD_URL=https://dominque-hydrocephalic-unconsiderablely.ngrok-free.dev
 `config.json`:
 ```json
 {
-  "tvIp": "192.168.50.145",
-  "tvMac": "DC:03:98:69:CC:9A",
-  "clientKey": "7d5d8bb32bcaffe8539149791e4cb037",
+  "tvIp": "192.168.50.84",
+  "tvMac": "90:7A:BE:96:CD:E0",
+  "clientKey": "",
   "saveKey": true,
   "port": 3000,
   "webServerPort": 8080,
@@ -97,8 +97,32 @@ To reproduce or spin up the controller service from scratch:
 - **`src/lgtv.js`**: SSAP protocol manager, client key caching, auto-reconnect, Wake-on-LAN magic packet dispatcher, pointer socket handling, Luna IME typing, and subscription streams.
 - **`src/config.js`**: Loads and persists TV IP, MAC address, pairing keys, and server ports.
 - **`server.js`**: Express REST API + Socket.IO server serving `public/` web dashboard.
-- **`public/`**: Glassmorphic dark cybernetic Web Remote UI (`index.html`, `style.css`, `app.js`).
+- **`src/ai-assistant.js`**: Intelligent natural language parsing engine & multi-step TV actions.
+- **`public/`**: Glassmorphic dark cybernetic Web Remote UI (`index.html`, `style.css`, `app.js`) with AI Voice/Text Assistant, Air Touchpad trackpad, QWERTY keyboard.
 - **`cli.js`**: Standalone terminal execution tool.
+
+---
+
+## 🤖 AI Assistant & Touchpad Air Mouse
+
+### 1. Natural Language & Composite Prompts (`/api/ai/command`)
+Send high-level complex requests to the AI engine:
+```http
+POST https://dominque-hydrocephalic-unconsiderablely.ngrok-free.dev/api/ai/command
+Content-Type: application/json
+
+{"prompt": "Set volume to 20 and open YouTube"}
+```
+
+* Supported AI Presets:
+  - `"Bedtime Mode"` ➔ Dims volume to 12% and turns screen off while keeping audio streaming.
+  - `"Cinema Mode"` ➔ Sets volume to 26% and opens Netflix.
+  - `"Game Mode"` ➔ Switches to HDMI 1 with optimized audio level.
+
+### 2. Magic Touchpad & Air Mouse (`/api/mouse/*`)
+* **Move pointer**: `POST /api/mouse/move` with `{"dx": 10, "dy": -5, "drag": 0}` (or Socket.IO `mouse:move`)
+* **Click**: `POST /api/mouse/click` (or Socket.IO `mouse:click`)
+* **Scroll**: `POST /api/mouse/scroll` with `{"dy": -10}` (or Socket.IO `mouse:scroll`)
 
 ---
 
