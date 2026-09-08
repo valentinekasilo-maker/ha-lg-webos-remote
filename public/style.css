@@ -311,7 +311,7 @@ body {
 
 /* Quick Bar Section */
 .quick-bar-section {
-  padding: 14px 20px;
+  padding: 0 0 12px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;

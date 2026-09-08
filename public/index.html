@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   
-  <link rel="stylesheet" href="style.css?v=2.7.0">
+  <link rel="stylesheet" href="style.css?v=2.8.0">
 </head>
 <body>
   <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
@@ -90,32 +90,32 @@
       <span id="ui-alert-msg">Please accept pairing on your TV</span>
     </div>
 
-    <!-- 1. Power On/Off, Screen Off, Reconnect -->
-    <section class="quick-bar-section">
-      <div class="power-group">
-        <button id="btn-power-on" class="btn-power on" title="Power On via Wake-on-LAN">
-          <svg class="icon"><use href="#icon-power"/></svg>
-          <span>TURN ON</span>
-        </button>
-        <button id="btn-power-off" class="btn-power off" title="Turn TV Off">
-          <svg class="icon"><use href="#icon-power"/></svg>
-          <span>POWER OFF</span>
-        </button>
-      </div>
-      <div class="screen-group">
-        <button id="btn-screen-toggle" class="btn-pill" title="Turn screen off without stopping audio">
-          <svg class="icon"><use href="#icon-screen"/></svg>
-          <span>Screen Off</span>
-        </button>
-        <button id="btn-reconnect" class="btn-pill" title="Reconnect WebSocket">
-          <svg class="icon"><use href="#icon-refresh"/></svg>
-          <span>Reconnect</span>
-        </button>
-      </div>
-    </section>
-
     <!-- Main Remote Body -->
     <main class="remote-body">
+      <!-- 1. Power On/Off, Screen Off, Reconnect -->
+      <section class="quick-bar-section">
+        <div class="power-group">
+          <button id="btn-power-on" class="btn-power on" title="Power On via Wake-on-LAN">
+            <svg class="icon"><use href="#icon-power"/></svg>
+            <span>TURN ON</span>
+          </button>
+          <button id="btn-power-off" class="btn-power off" title="Turn TV Off">
+            <svg class="icon"><use href="#icon-power"/></svg>
+            <span>POWER OFF</span>
+          </button>
+        </div>
+        <div class="screen-group">
+          <button id="btn-screen-toggle" class="btn-pill" title="Turn screen off without stopping audio">
+            <svg class="icon"><use href="#icon-screen"/></svg>
+            <span>Screen Off</span>
+          </button>
+          <button id="btn-reconnect" class="btn-pill" title="Reconnect WebSocket">
+            <svg class="icon"><use href="#icon-refresh"/></svg>
+            <span>Reconnect</span>
+          </button>
+        </div>
+      </section>
+
       <!-- 2. Home, Back, Menu, Exit -->
       <div class="aux-nav-row">
         <button class="nav-btn" data-key="HOME" id="btn-home" title="Home Dashboard">
@@ -472,6 +472,6 @@
 
   <!-- Socket.io client script & app logic -->
   <script src="socket.io/socket.io.js"></script>
-  <script src="app.js?v=2.7.0"></script>
+  <script src="app.js?v=2.8.0"></script>
 </body>
 </html>
