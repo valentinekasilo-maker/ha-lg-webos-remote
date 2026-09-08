@@ -806,9 +806,9 @@ if (modeBtnDpad && modeBtnTouchpad) {
   modeBtnDpad.addEventListener('click', () => switchNavMode('dpad'));
   modeBtnTouchpad.addEventListener('click', () => switchNavMode('touchpad'));
 
-  // Restore saved preference if any
-  const savedMode = localStorage.getItem('lg_nav_mode');
-  if (savedMode === 'touchpad') switchNavMode('touchpad');
+  // Default to touchpad as requested
+  const savedMode = localStorage.getItem('lg_nav_mode') || 'touchpad';
+  switchNavMode(savedMode);
 }
 
 // Sensitivity Settings
