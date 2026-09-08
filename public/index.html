@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   
-  <link rel="stylesheet" href="style.css?v=2.6.0">
+  <link rel="stylesheet" href="style.css?v=2.7.0">
 </head>
 <body>
   <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
@@ -44,6 +44,7 @@
     <symbol id="icon-youtube" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></symbol>
     <symbol id="icon-netflix" viewBox="0 0 24 24"><path d="M5.398 0v24h3.693V12.923L14.73 24h3.872V0h-3.693v11.077L9.27 0H5.398z"/></symbol>
     <symbol id="icon-prime" viewBox="0 0 24 24"><path d="M13.882 17.587c-3.13 2.106-7.545 3.23-11.45 1.096-.54-.296-.062-.897.433-.67 3.42 1.572 7.37.755 10.158-1.073.43-.281.859.366.859.647zm1.196-1.428c-.415-.53-2.735-.25-3.778-.124-.312.038-.36-.24-.078-.44 1.83-1.295 4.825-.92 5.176-.48.35.44-.09 3.454-1.815 4.877-.265.22-.515.102-.39-.188.413-.96 1.299-3.115.885-3.645zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></symbol>
+    <symbol id="icon-spotify" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.524 4.477 10 10 10 5.524 0 10-4.476 10-10 0-5.523-4.476-10-10-10zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.308-1.758-8.793-.963-.335.077-.67-.133-.746-.468-.077-.334.132-.67.467-.746 3.809-.871 7.077-.506 9.722 1.113.294.18.387.563.207.857zm1.224-2.72c-.226.367-.708.482-1.075.257-2.69-1.653-6.79-2.131-9.97-1.165-.413.125-.85-.107-.975-.52-.125-.414.107-.85.52-.976 3.632-1.102 8.147-.568 11.243 1.33.367.225.482.707.257 1.074zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71c-.494.15-1.018-.129-1.168-.623-.15-.495.13-1.018.624-1.168 3.532-1.072 9.404-.866 13.115 1.338.445.264.59.838.327 1.282-.264.443-.838.59-1.28.327z"/></symbol>
     <symbol id="icon-plug" viewBox="0 0 24 24"><path d="M16 7V3h-2v4h-4V3H8v4c-1.66 0-3 1.34-3 3v5.5c0 3.04 2.46 5.5 5.5 5.5v3h3v-3c3.04 0 5.5-2.46 5.5-5.5V10c0-1.66-1.34-3-3-3z"/></symbol>
     <symbol id="icon-globe" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
     <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
@@ -220,38 +221,109 @@
         <span class="volume-level-display" id="vol-display">20</span>
       </div>
 
-      <!-- Media Controls -->
-      <div class="media-row">
-        <button class="media-btn" id="btn-rewind" title="Rewind">
-          <svg class="icon"><use href="#icon-rewind"/></svg>
-        </button>
-        <button class="media-btn" id="btn-play" title="Play">
-          <svg class="icon"><use href="#icon-play"/></svg>
-        </button>
-        <button class="media-btn" id="btn-pause" title="Pause">
-          <svg class="icon"><use href="#icon-pause"/></svg>
-        </button>
-        <button class="media-btn" id="btn-stop" title="Stop">
-          <svg class="icon"><use href="#icon-stop"/></svg>
-        </button>
-        <button class="media-btn" id="btn-ff" title="Fast Forward">
-          <svg class="icon"><use href="#icon-forward"/></svg>
-        </button>
-      </div>
-
-      <!-- Color Buttons -->
-      <div class="color-buttons-row">
-        <button class="color-btn red" data-key="RED" title="Red"></button>
-        <button class="color-btn green" data-key="GREEN" title="Green"></button>
-        <button class="color-btn yellow" data-key="YELLOW" title="Yellow"></button>
-        <button class="color-btn blue" data-key="BLUE" title="Blue"></button>
-      </div>
-
-      <!-- Quick Apps Grid -->
-      <section class="section-container">
-        <div class="section-title">
-          <svg class="icon"><use href="#icon-apps"/></svg> Quick Apps & Inputs
+      <!-- CARD 1: Typing Tools Card -->
+      <section class="section-card" id="keyboard-section">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-keyboard"/></svg>
+            <span>Typing</span>
+          </div>
+          <label class="kb-toggle-label" title="Send characters directly as you type">
+            <input type="checkbox" id="kb-live-mode"> Live
+          </label>
         </div>
+
+        <div class="kb-input-wrap">
+          <input type="text" id="kb-input" placeholder="Type here to type on TV..." autocomplete="off">
+          <button id="btn-kb-send" class="btn-primary-sm" title="Send text to TV">
+            <svg class="icon"><use href="#icon-send"/></svg> Send
+          </button>
+          <button id="btn-kb-enter" class="btn-secondary-sm" title="Send Enter Key">
+            ↵ Enter
+          </button>
+        </div>
+
+        <div class="kb-quick-actions">
+          <button class="kb-act-btn" id="btn-kb-backspace" title="Backspace">⌫ Del</button>
+          <button class="kb-act-btn" id="btn-kb-space" title="Space">␣ Space</button>
+          <button class="kb-act-btn" id="btn-kb-clear" title="Clear input">Clear</button>
+          <button class="kb-act-btn" id="btn-kb-paste" title="Paste from clipboard">📋 Paste</button>
+        </div>
+
+        <!-- Virtual Keypad Accordion -->
+        <details class="qwerty-drawer" id="qwerty-drawer">
+          <summary><svg class="icon"><use href="#icon-keyboard"/></svg> Virtual Keypad</summary>
+          <div class="qwerty-grid">
+            <!-- Numbers Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="1">1</button>
+              <button class="key-btn" data-char="2">2</button>
+              <button class="key-btn" data-char="3">3</button>
+              <button class="key-btn" data-char="4">4</button>
+              <button class="key-btn" data-char="5">5</button>
+              <button class="key-btn" data-char="6">6</button>
+              <button class="key-btn" data-char="7">7</button>
+              <button class="key-btn" data-char="8">8</button>
+              <button class="key-btn" data-char="9">9</button>
+              <button class="key-btn" data-char="0">0</button>
+            </div>
+            <!-- QWERTY Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="q">q</button>
+              <button class="key-btn" data-char="w">w</button>
+              <button class="key-btn" data-char="e">e</button>
+              <button class="key-btn" data-char="r">r</button>
+              <button class="key-btn" data-char="t">t</button>
+              <button class="key-btn" data-char="y">y</button>
+              <button class="key-btn" data-char="u">u</button>
+              <button class="key-btn" data-char="i">i</button>
+              <button class="key-btn" data-char="o">o</button>
+              <button class="key-btn" data-char="p">p</button>
+            </div>
+            <!-- ASDF Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="a">a</button>
+              <button class="key-btn" data-char="s">s</button>
+              <button class="key-btn" data-char="d">d</button>
+              <button class="key-btn" data-char="f">f</button>
+              <button class="key-btn" data-char="g">g</button>
+              <button class="key-btn" data-char="h">h</button>
+              <button class="key-btn" data-char="j">j</button>
+              <button class="key-btn" data-char="k">k</button>
+              <button class="key-btn" data-char="l">l</button>
+            </div>
+            <!-- ZXCV Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="z">z</button>
+              <button class="key-btn" data-char="x">x</button>
+              <button class="key-btn" data-char="c">c</button>
+              <button class="key-btn" data-char="v">v</button>
+              <button class="key-btn" data-char="b">b</button>
+              <button class="key-btn" data-char="n">n</button>
+              <button class="key-btn" data-char="m">m</button>
+              <button class="key-btn special del" id="btn-key-del">⌫</button>
+            </div>
+            <!-- Bottom Row: @ . Space - Enter -->
+            <div class="qwerty-row">
+              <button class="key-btn special" data-char="@">@</button>
+              <button class="key-btn special" data-char=".">.</button>
+              <button class="key-btn space" data-char=" ">SPACE</button>
+              <button class="key-btn special" data-char="-">-</button>
+              <button class="key-btn special enter" id="btn-key-enter">↵</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- CARD 2: Apps & Inputs Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-apps"/></svg>
+            <span>Apps & Shortcuts</span>
+          </div>
+        </div>
+
         <div class="apps-grid">
           <button class="app-card" data-app="youtube.leanback.v4" title="YouTube">
             <div class="app-icon yt"><svg class="icon"><use href="#icon-youtube"/></svg></div>
@@ -264,6 +336,10 @@
           <button class="app-card" data-app="amazon" title="Prime Video">
             <div class="app-icon prm"><svg class="icon"><use href="#icon-prime"/></svg></div>
             <span>Prime</span>
+          </button>
+          <button class="app-card" data-app="spotify-tv" title="Spotify">
+            <div class="app-icon spt"><svg class="icon"><use href="#icon-spotify"/></svg></div>
+            <span>Spotify</span>
           </button>
           <button class="app-card" data-app="com.webos.app.browser" title="Web Browser">
             <div class="app-icon web"><svg class="icon"><use href="#icon-globe"/></svg></div>
@@ -278,129 +354,81 @@
             <span>HDMI 2</span>
           </button>
         </div>
+
+        <!-- Installed TV Apps (Live from TV) -->
+        <details class="numpad-accordion" id="installed-apps-accordion">
+          <summary><svg class="icon"><use href="#icon-apps"/></svg> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
+          <div class="apps-grid" id="installed-apps-grid" style="margin-top: 12px;"></div>
+        </details>
       </section>
 
-      <!-- Installed TV Apps (Live from TV) -->
-      <details class="numpad-accordion" id="installed-apps-accordion">
-        <summary><svg class="icon"><use href="#icon-apps"/></svg> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
-        <div class="apps-grid" id="installed-apps-grid" style="margin-top: 12px;"></div>
-      </details>
-
-      <!-- Number Pad Toggle -->
-      <details class="numpad-accordion">
-        <summary><svg class="icon"><use href="#icon-calc"/></svg> Number Pad & Special Keys</summary>
-        <div class="numpad-grid">
-          <button class="num-btn" data-key="1">1</button>
-          <button class="num-btn" data-key="2">2</button>
-          <button class="num-btn" data-key="3">3</button>
-          <button class="num-btn" data-key="4">4</button>
-          <button class="num-btn" data-key="5">5</button>
-          <button class="num-btn" data-key="6">6</button>
-          <button class="num-btn" data-key="7">7</button>
-          <button class="num-btn" data-key="8">8</button>
-          <button class="num-btn" data-key="9">9</button>
-          <button class="num-btn" data-key="CC">CC</button>
-          <button class="num-btn" data-key="0">0</button>
-          <button class="num-btn" data-key="LIST">LIST</button>
-        </div>
-      </details>
-
-      <!-- Smart TV Keyboard & Text Typing -->
-      <section class="section-container" id="keyboard-section">
-        <div class="section-title">
-          <svg class="icon"><use href="#icon-keyboard"/></svg> Smart TV Keyboard & Text Input
-        </div>
-        <div class="keyboard-card">
-          <div class="kb-input-wrap">
-            <input type="text" id="kb-input" placeholder="Type here to type on TV..." autocomplete="off">
-            <button id="btn-kb-send" class="btn-primary-sm" title="Send text to TV">
-              <svg class="icon"><use href="#icon-send"/></svg> Send
-            </button>
-            <button id="btn-kb-enter" class="btn-secondary-sm" title="Send Enter Key">
-              ↵ Enter
-            </button>
+      <!-- CARD 3: Media & Playback Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-play"/></svg>
+            <span>Media Controls</span>
           </div>
+        </div>
 
-          <div class="kb-quick-actions">
-            <button class="kb-act-btn" id="btn-kb-backspace" title="Backspace">⌫ Del</button>
-            <button class="kb-act-btn" id="btn-kb-space" title="Space">␣ Space</button>
-            <button class="kb-act-btn" id="btn-kb-clear" title="Clear input">Clear</button>
-            <button class="kb-act-btn" id="btn-kb-paste" title="Paste from clipboard">📋 Paste</button>
-            <label class="kb-toggle-label" title="Send characters as you type">
-              <input type="checkbox" id="kb-live-mode"> Live Type
-            </label>
-          </div>
+        <!-- Media Controls Buttons -->
+        <div class="media-row">
+          <button class="media-btn" id="btn-rewind" title="Rewind">
+            <svg class="icon"><use href="#icon-rewind"/></svg>
+          </button>
+          <button class="media-btn" id="btn-play" title="Play">
+            <svg class="icon"><use href="#icon-play"/></svg>
+          </button>
+          <button class="media-btn" id="btn-pause" title="Pause">
+            <svg class="icon"><use href="#icon-pause"/></svg>
+          </button>
+          <button class="media-btn" id="btn-stop" title="Stop">
+            <svg class="icon"><use href="#icon-stop"/></svg>
+          </button>
+          <button class="media-btn" id="btn-ff" title="Fast Forward">
+            <svg class="icon"><use href="#icon-forward"/></svg>
+          </button>
+        </div>
 
-          <!-- Virtual QWERTY Keypad Accordion -->
-          <details class="qwerty-drawer" id="qwerty-drawer">
-            <summary><svg class="icon"><use href="#icon-keyboard"/></svg> On-Screen Virtual Keypad</summary>
-            <div class="qwerty-grid">
-              <!-- Numbers Row -->
-              <div class="qwerty-row">
-                <button class="key-btn" data-char="1">1</button>
-                <button class="key-btn" data-char="2">2</button>
-                <button class="key-btn" data-char="3">3</button>
-                <button class="key-btn" data-char="4">4</button>
-                <button class="key-btn" data-char="5">5</button>
-                <button class="key-btn" data-char="6">6</button>
-                <button class="key-btn" data-char="7">7</button>
-                <button class="key-btn" data-char="8">8</button>
-                <button class="key-btn" data-char="9">9</button>
-                <button class="key-btn" data-char="0">0</button>
-              </div>
-              <!-- QWERTY Row -->
-              <div class="qwerty-row">
-                <button class="key-btn" data-char="q">q</button>
-                <button class="key-btn" data-char="w">w</button>
-                <button class="key-btn" data-char="e">e</button>
-                <button class="key-btn" data-char="r">r</button>
-                <button class="key-btn" data-char="t">t</button>
-                <button class="key-btn" data-char="y">y</button>
-                <button class="key-btn" data-char="u">u</button>
-                <button class="key-btn" data-char="i">i</button>
-                <button class="key-btn" data-char="o">o</button>
-                <button class="key-btn" data-char="p">p</button>
-              </div>
-              <!-- ASDF Row -->
-              <div class="qwerty-row">
-                <button class="key-btn" data-char="a">a</button>
-                <button class="key-btn" data-char="s">s</button>
-                <button class="key-btn" data-char="d">d</button>
-                <button class="key-btn" data-char="f">f</button>
-                <button class="key-btn" data-char="g">g</button>
-                <button class="key-btn" data-char="h">h</button>
-                <button class="key-btn" data-char="j">j</button>
-                <button class="key-btn" data-char="k">k</button>
-                <button class="key-btn" data-char="l">l</button>
-              </div>
-              <!-- ZXCV Row -->
-              <div class="qwerty-row">
-                <button class="key-btn" data-char="z">z</button>
-                <button class="key-btn" data-char="x">x</button>
-                <button class="key-btn" data-char="c">c</button>
-                <button class="key-btn" data-char="v">v</button>
-                <button class="key-btn" data-char="b">b</button>
-                <button class="key-btn" data-char="n">n</button>
-                <button class="key-btn" data-char="m">m</button>
-                <button class="key-btn special del" id="btn-key-del">⌫</button>
-              </div>
-              <!-- Bottom Row: @ . Space - Enter -->
-              <div class="qwerty-row">
-                <button class="key-btn special" data-char="@">@</button>
-                <button class="key-btn special" data-char=".">.</button>
-                <button class="key-btn space" data-char=" ">SPACE</button>
-                <button class="key-btn special" data-char="-">-</button>
-                <button class="key-btn special enter" id="btn-key-enter">↵</button>
-              </div>
-            </div>
-          </details>
+        <!-- Color Buttons -->
+        <div class="color-buttons-row">
+          <button class="color-btn red" data-key="RED" title="Red"></button>
+          <button class="color-btn green" data-key="GREEN" title="Green"></button>
+          <button class="color-btn yellow" data-key="YELLOW" title="Yellow"></button>
+          <button class="color-btn blue" data-key="BLUE" title="Blue"></button>
         </div>
       </section>
 
-      <!-- TV Toast Messenger -->
-      <section class="section-container">
-        <div class="section-title">
-          <svg class="icon"><use href="#icon-msg"/></svg> Send On-Screen Alert
+      <!-- CARD 4: Number Pad Card -->
+      <section class="section-card">
+        <details class="numpad-accordion" style="background: transparent; border: none; padding: 0;">
+          <summary style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">
+            <svg class="icon" style="fill: var(--accent-cyan);"><use href="#icon-calc"/></svg> Number Pad & Keys
+          </summary>
+          <div class="numpad-grid">
+            <button class="num-btn" data-key="1">1</button>
+            <button class="num-btn" data-key="2">2</button>
+            <button class="num-btn" data-key="3">3</button>
+            <button class="num-btn" data-key="4">4</button>
+            <button class="num-btn" data-key="5">5</button>
+            <button class="num-btn" data-key="6">6</button>
+            <button class="num-btn" data-key="7">7</button>
+            <button class="num-btn" data-key="8">8</button>
+            <button class="num-btn" data-key="9">9</button>
+            <button class="num-btn" data-key="CC">CC</button>
+            <button class="num-btn" data-key="0">0</button>
+            <button class="num-btn" data-key="LIST">LIST</button>
+          </div>
+        </details>
+      </section>
+
+      <!-- CARD 5: TV Toast Alert Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-msg"/></svg>
+            <span>TV Alert</span>
+          </div>
         </div>
         <form id="toast-form" class="toast-box">
           <input type="text" id="toast-input" placeholder="Type a message to show on TV..." required>
@@ -444,6 +472,6 @@
 
   <!-- Socket.io client script & app logic -->
   <script src="socket.io/socket.io.js"></script>
-  <script src="app.js?v=2.6.0"></script>
+  <script src="app.js?v=2.7.0"></script>
 </body>
 </html>

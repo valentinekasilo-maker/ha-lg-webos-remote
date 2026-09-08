@@ -999,6 +999,45 @@ body {
   transform: scale(0.9);
 }
 
+/* Modular Section Cards */
+.section-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.section-card:hover {
+  border-color: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.card-title .icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: var(--accent-cyan);
+}
+
 /* Section Containers */
 .section-container {
   display: flex;
@@ -1020,22 +1059,22 @@ body {
 /* Quick Apps Grid */
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .app-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  padding: 10px 6px;
+  padding: 8px 4px;
   color: var(--text-main);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
+  gap: 5px;
+  font-size: 0.68rem;
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -1049,17 +1088,19 @@ body {
 }
 
 .app-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 .app-icon.yt { background: #ff0000; color: #fff; }
 .app-icon.nfx { background: #e50914; color: #fff; font-weight: 900; }
 .app-icon.prm { background: #00a8e1; color: #fff; }
+.app-icon.spt { background: #1db954; color: #fff; }
+.app-icon.spt .icon { fill: #fff; }
 .app-icon.web { background: #4285f4; color: #fff; }
 .app-icon.hdmi { background: #374151; color: var(--accent-cyan); }
 
