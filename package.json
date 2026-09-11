@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "node patch-lgtv.js",
+    "postinstall": "node -e \"try{require('./patch-lgtv')}catch(e){}\"",
     "dev": "node --watch server.js",
     "cli": "node cli.js",
     "tunnel": "lt --port 8080",
