@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LG webOS Smart Remote</title>
+  <meta name="description" content="Ultra-fast, real-time web controller and remote for LG webOS Smart TVs">
+  
+  <!-- Non-blocking Google Fonts with instant system font fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  
+  <link rel="stylesheet" href="style.css?v=3.0.0">
+</head>
+<body>
+  <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-tv" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></symbol>
+    <symbol id="icon-keyboard" viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm8 7H9v-2h6v2zm1-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></symbol>
+    <symbol id="icon-gear" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+    <symbol id="icon-power" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></symbol>
+    <symbol id="icon-screen" viewBox="0 0 24 24"><path d="M20 3H4c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h4v2h8v-2h4c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 14H4V5h16v12z"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="icon-up" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></symbol>
+    <symbol id="icon-right" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+    <symbol id="icon-down" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></symbol>
+    <symbol id="icon-left" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
+    <symbol id="icon-vol-high" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></symbol>
+    <symbol id="icon-vol-low" viewBox="0 0 24 24"><path d="M7 9v6h4l5 5V4L11 9H7z"/></symbol>
+    <symbol id="icon-mute" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></symbol>
+    <symbol id="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
+    <symbol id="icon-rewind" viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></symbol>
+    <symbol id="icon-forward" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></symbol>
+    <symbol id="icon-youtube" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></symbol>
+    <symbol id="icon-netflix" viewBox="0 0 24 24"><path d="M5.398 0v24h3.693V12.923L14.73 24h3.872V0h-3.693v11.077L9.27 0H5.398z"/></symbol>
+    <symbol id="icon-prime" viewBox="0 0 24 24"><path d="M13.882 17.587c-3.13 2.106-7.545 3.23-11.45 1.096-.54-.296-.062-.897.433-.67 3.42 1.572 7.37.755 10.158-1.073.43-.281.859.366.859.647zm1.196-1.428c-.415-.53-2.735-.25-3.778-.124-.312.038-.36-.24-.078-.44 1.83-1.295 4.825-.92 5.176-.48.35.44-.09 3.454-1.815 4.877-.265.22-.515.102-.39-.188.413-.96 1.299-3.115.885-3.645zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></symbol>
+    <symbol id="icon-spotify" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.524 4.477 10 10 10 5.524 0 10-4.476 10-10 0-5.523-4.476-10-10-10zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.308-1.758-8.793-.963-.335.077-.67-.133-.746-.468-.077-.334.132-.67.467-.746 3.809-.871 7.077-.506 9.722 1.113.294.18.387.563.207.857zm1.224-2.72c-.226.367-.708.482-1.075.257-2.69-1.653-6.79-2.131-9.97-1.165-.413.125-.85-.107-.975-.52-.125-.414.107-.85.52-.976 3.632-1.102 8.147-.568 11.243 1.33.367.225.482.707.257 1.074zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71c-.494.15-1.018-.129-1.168-.623-.15-.495.13-1.018.624-1.168 3.532-1.072 9.404-.866 13.115 1.338.445.264.59.838.327 1.282-.264.443-.838.59-1.28.327z"/></symbol>
+    <symbol id="icon-plug" viewBox="0 0 24 24"><path d="M16 7V3h-2v4h-4V3H8v4c-1.66 0-3 1.34-3 3v5.5c0 3.04 2.46 5.5 5.5 5.5v3h3v-3c3.04 0 5.5-2.46 5.5-5.5V10c0-1.66-1.34-3-3-3z"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></symbol>
+    <symbol id="icon-apps" viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></symbol>
+    <symbol id="icon-calc" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 16H7v-2h6v2zm4 0h-2v-2h2v2zm0-4H7v-2h10v2zm0-4H7V9h10v2zm0-4H7V5h10v2z"/></symbol>
+    <symbol id="icon-msg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol>
+    <symbol id="icon-touchpad" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 10H5V5h14v8zm-8 6H5v-4h6v4zm8 0h-6v-4h6v4z"/></symbol>
+    <symbol id="icon-dpad" viewBox="0 0 24 24"><path d="M9 2v6H3v8h6v6h6v-6h6V8h-6V2H9zm4 18h-2v-4h2v4zm0-10h-2V4h2v6zm-4 4H5v-2h4v2zm10 0h-4v-2h4v2z"/></symbol>
+  </svg>
+
+  <div class="background-glow top-left"></div>
+  <div class="background-glow bottom-right"></div>
+
+  <div class="app-container">
+    <!-- Remote IR Emitter Notch -->
+    <div class="remote-ir-blaster">
+      <div class="ir-lens"></div>
+      <div class="ir-mic-hole"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="remote-header">
+      <div class="brand">
+        <div class="brand-icon"><svg class="icon"><use href="#icon-tv"/></svg></div>
+        <div class="brand-text">
+          <h1>LG webOS</h1>
+          <span class="sub-label">Smart Remote</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="status-badge" class="status-badge disconnected" title="TV Connection Status">
+          <span class="status-dot"></span>
+          <span id="status-text">Disconnected</span>
+        </div>
+        <button id="btn-keyboard-scroll" class="icon-btn" title="Smart TV Keyboard">
+          <svg class="icon"><use href="#icon-keyboard"/></svg>
+        </button>
+        <button id="btn-settings-open" class="icon-btn" title="Settings & TV IP">
+          <svg class="icon"><use href="#icon-gear"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Alert / Toast Banner inside Remote UI -->
+    <div id="ui-alert" class="ui-alert hidden">
+      <svg class="icon"><use href="#icon-info"/></svg>
+      <span id="ui-alert-msg">Please accept pairing on your TV</span>
+    </div>
+
+    <!-- Main Remote Body -->
+    <main class="remote-body">
+      <!-- 1. Power On/Off, Screen Off, Reconnect -->
+      <section class="quick-bar-section">
+        <div class="power-group">
+          <button id="btn-power-on" class="btn-power on" title="Power On via Wake-on-LAN">
+            <svg class="icon"><use href="#icon-power"/></svg>
+            <span>TURN ON</span>
+          </button>
+          <button id="btn-power-off" class="btn-power off" title="Turn TV Off">
+            <svg class="icon"><use href="#icon-power"/></svg>
+            <span>POWER OFF</span>
+          </button>
+        </div>
+        <div class="screen-group">
+          <button id="btn-screen-toggle" class="btn-pill" title="Turn screen off without stopping audio">
+            <svg class="icon"><use href="#icon-screen"/></svg>
+            <span>Screen Off</span>
+          </button>
+          <button id="btn-reconnect" class="btn-pill" title="Reconnect WebSocket">
+            <svg class="icon"><use href="#icon-refresh"/></svg>
+            <span>Reconnect</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Home, Back, Menu, Exit -->
+      <div class="aux-nav-row">
+        <button class="nav-btn" data-key="HOME" id="btn-home" title="Home Dashboard">
+          <svg class="icon"><use href="#icon-home"/></svg>
+          <span>Home</span>
+        </button>
+        <button class="nav-btn" data-key="BACK" id="btn-back" title="Back">
+          <svg class="icon"><use href="#icon-back"/></svg>
+          <span>Back</span>
+        </button>
+        <button class="nav-btn" data-key="MENU" id="btn-menu" title="Settings Menu">
+          <svg class="icon"><use href="#icon-menu"/></svg>
+          <span>Menu</span>
+        </button>
+        <button class="nav-btn" data-key="EXIT" id="btn-exit" title="Exit App">
+          <svg class="icon"><use href="#icon-close"/></svg>
+          <span>Exit</span>
+        </button>
+      </div>
+
+      <!-- 3. Option of choosing Touchpad (Default) and D-Pad -->
+      <div class="nav-mode-switcher">
+        <button id="mode-btn-touchpad" class="mode-tab active" title="Touchpad Air Mouse (Default)">
+          <svg class="icon"><use href="#icon-touchpad"/></svg>
+          <span>Touchpad</span>
+        </button>
+        <button id="mode-btn-dpad" class="mode-tab" title="D-Pad Navigation Wheel">
+          <svg class="icon"><use href="#icon-dpad"/></svg>
+          <span>D-Pad</span>
+        </button>
+      </div>
+
+      <!-- Touchpad View (Default Active & Visible) -->
+      <div class="touchpad-container" id="touchpad-view">
+        <div class="touchpad-surface" id="touchpad-surface">
+          <div class="touchpad-crosshair"></div>
+          <div class="touchpad-tracker" id="touchpad-tracker"></div>
+          <div class="touchpad-hint">
+            <svg class="icon"><use href="#icon-touchpad"/></svg>
+            <span>Slide to guide pointer • Tap to click • 2-finger scroll</span>
+          </div>
+        </div>
+
+        <!-- Touchpad Options & Actions -->
+        <div class="touchpad-actions-bar">
+          <button class="tp-btn primary" id="tp-click" title="Click / Select">
+            <svg class="icon"><use href="#icon-touchpad"/></svg>
+            <span>Click</span>
+          </button>
+          <button class="tp-btn" id="tp-scroll-up" title="Scroll Up">
+            <svg class="icon"><use href="#icon-up"/></svg>
+            <span>Scroll ▲</span>
+          </button>
+          <button class="tp-btn" id="tp-scroll-down" title="Scroll Down">
+            <svg class="icon"><use href="#icon-down"/></svg>
+            <span>Scroll ▼</span>
+          </button>
+          <button class="tp-btn" id="tp-back" title="Back">
+            <svg class="icon"><use href="#icon-back"/></svg>
+            <span>Back</span>
+          </button>
+        </div>
+
+        <!-- Touchpad Sensitivity Options -->
+        <div class="tp-sensitivity-row">
+          <span class="tp-sens-label">Sensitivity:</span>
+          <div class="tp-sens-pills">
+            <button class="sens-pill" data-sens="0.6">0.6x</button>
+            <button class="sens-pill active" data-sens="1.0">1.0x</button>
+            <button class="sens-pill" data-sens="1.6">1.6x</button>
+            <button class="sens-pill" data-sens="2.4">2.4x</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- D-PAD View (Hidden by Default when Touchpad is active) -->
+      <div class="dpad-container hidden" id="dpad-view">
+        <div class="dpad-wheel">
+          <button class="dpad-btn dpad-up" data-key="UP" id="dpad-up" title="Up">
+            <svg class="icon"><use href="#icon-up"/></svg>
+          </button>
+          <button class="dpad-btn dpad-right" data-key="RIGHT" id="dpad-right" title="Right">
+            <svg class="icon"><use href="#icon-right"/></svg>
+          </button>
+          <button class="dpad-btn dpad-down" data-key="DOWN" id="dpad-down" title="Down">
+            <svg class="icon"><use href="#icon-down"/></svg>
+          </button>
+          <button class="dpad-btn dpad-left" data-key="LEFT" id="dpad-left" title="Left">
+            <svg class="icon"><use href="#icon-left"/></svg>
+          </button>
+          <button class="dpad-center" data-key="ENTER" id="dpad-ok" title="OK / Enter">
+            <span>OK</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Volume Slider & Mute -->
+      <div class="slider-box">
+        <button class="mute-toggle-btn" id="btn-mute" title="Toggle Mute">
+          <svg class="icon" id="mute-icon"><use href="#icon-mute"/></svg>
+        </button>
+        <input type="range" id="vol-slider" min="0" max="100" value="20" class="volume-slider" title="Set Volume">
+        <span class="volume-level-display" id="vol-display">20</span>
+      </div>
+
+      <!-- CARD 1: Typing Tools Card -->
+      <section class="section-card" id="keyboard-section">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-keyboard"/></svg>
+            <span>Typing</span>
+          </div>
+          <label class="kb-toggle-label" title="Send characters directly as you type">
+            <input type="checkbox" id="kb-live-mode"> Live
+          </label>
+        </div>
+
+        <div class="kb-input-wrap">
+          <input type="text" id="kb-input" placeholder="Type here to type on TV..." autocomplete="off">
+          <button id="btn-kb-send" class="btn-primary-sm" title="Send text to TV">
+            <svg class="icon"><use href="#icon-send"/></svg> Send
+          </button>
+          <button id="btn-kb-enter" class="btn-secondary-sm" title="Send Enter Key">
+            ↵ Enter
+          </button>
+        </div>
+
+        <div class="kb-quick-actions">
+          <button class="kb-act-btn" id="btn-kb-backspace" title="Backspace">⌫ Del</button>
+          <button class="kb-act-btn" id="btn-kb-space" title="Space">␣ Space</button>
+          <button class="kb-act-btn" id="btn-kb-clear" title="Clear input">Clear</button>
+          <button class="kb-act-btn" id="btn-kb-paste" title="Paste from clipboard">📋 Paste</button>
+        </div>
+
+        <!-- Virtual Keypad Accordion -->
+        <details class="qwerty-drawer" id="qwerty-drawer">
+          <summary><svg class="icon"><use href="#icon-keyboard"/></svg> Virtual Keypad</summary>
+          <div class="qwerty-grid">
+            <!-- Numbers Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="1">1</button>
+              <button class="key-btn" data-char="2">2</button>
+              <button class="key-btn" data-char="3">3</button>
+              <button class="key-btn" data-char="4">4</button>
+              <button class="key-btn" data-char="5">5</button>
+              <button class="key-btn" data-char="6">6</button>
+              <button class="key-btn" data-char="7">7</button>
+              <button class="key-btn" data-char="8">8</button>
+              <button class="key-btn" data-char="9">9</button>
+              <button class="key-btn" data-char="0">0</button>
+            </div>
+            <!-- QWERTY Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="q">q</button>
+              <button class="key-btn" data-char="w">w</button>
+              <button class="key-btn" data-char="e">e</button>
+              <button class="key-btn" data-char="r">r</button>
+              <button class="key-btn" data-char="t">t</button>
+              <button class="key-btn" data-char="y">y</button>
+              <button class="key-btn" data-char="u">u</button>
+              <button class="key-btn" data-char="i">i</button>
+              <button class="key-btn" data-char="o">o</button>
+              <button class="key-btn" data-char="p">p</button>
+            </div>
+            <!-- ASDF Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="a">a</button>
+              <button class="key-btn" data-char="s">s</button>
+              <button class="key-btn" data-char="d">d</button>
+              <button class="key-btn" data-char="f">f</button>
+              <button class="key-btn" data-char="g">g</button>
+              <button class="key-btn" data-char="h">h</button>
+              <button class="key-btn" data-char="j">j</button>
+              <button class="key-btn" data-char="k">k</button>
+              <button class="key-btn" data-char="l">l</button>
+            </div>
+            <!-- ZXCV Row -->
+            <div class="qwerty-row">
+              <button class="key-btn" data-char="z">z</button>
+              <button class="key-btn" data-char="x">x</button>
+              <button class="key-btn" data-char="c">c</button>
+              <button class="key-btn" data-char="v">v</button>
+              <button class="key-btn" data-char="b">b</button>
+              <button class="key-btn" data-char="n">n</button>
+              <button class="key-btn" data-char="m">m</button>
+              <button class="key-btn special del" id="btn-key-del">⌫</button>
+            </div>
+            <!-- Bottom Row: @ . Space - Enter -->
+            <div class="qwerty-row">
+              <button class="key-btn special" data-char="@">@</button>
+              <button class="key-btn special" data-char=".">.</button>
+              <button class="key-btn space" data-char=" ">SPACE</button>
+              <button class="key-btn special" data-char="-">-</button>
+              <button class="key-btn special enter" id="btn-key-enter">↵</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- CARD 2: Apps & Inputs Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-apps"/></svg>
+            <span>Apps & Shortcuts</span>
+          </div>
+        </div>
+
+        <div class="apps-grid">
+          <button class="app-card" data-app="youtube.leanback.v4" title="YouTube">
+            <div class="app-icon yt"><svg class="icon"><use href="#icon-youtube"/></svg></div>
+            <span>YouTube</span>
+          </button>
+          <button class="app-card" data-app="netflix" title="Netflix">
+            <div class="app-icon nfx"><svg class="icon"><use href="#icon-netflix"/></svg></div>
+            <span>Netflix</span>
+          </button>
+          <button class="app-card" data-app="amazon" title="Prime Video">
+            <div class="app-icon prm"><svg class="icon"><use href="#icon-prime"/></svg></div>
+            <span>Prime</span>
+          </button>
+          <button class="app-card" data-app="spotify-tv" title="Spotify">
+            <div class="app-icon spt"><svg class="icon"><use href="#icon-spotify"/></svg></div>
+            <span>Spotify</span>
+          </button>
+          <button class="app-card" data-app="com.webos.app.browser" title="Web Browser">
+            <div class="app-icon web"><svg class="icon"><use href="#icon-globe"/></svg></div>
+            <span>Browser</span>
+          </button>
+          <button class="app-card" data-input="HDMI_1" title="HDMI 1">
+            <div class="app-icon hdmi"><svg class="icon"><use href="#icon-plug"/></svg></div>
+            <span>HDMI 1</span>
+          </button>
+          <button class="app-card" data-input="HDMI_2" title="HDMI 2">
+            <div class="app-icon hdmi"><svg class="icon"><use href="#icon-plug"/></svg></div>
+            <span>HDMI 2</span>
+          </button>
+        </div>
+
+        <!-- Installed TV Apps (Live from TV) -->
+        <details class="numpad-accordion" id="installed-apps-accordion">
+          <summary><svg class="icon"><use href="#icon-apps"/></svg> Installed TV Apps (<span id="installed-apps-count">0</span>)</summary>
+          <div class="apps-grid" id="installed-apps-grid" style="margin-top: 12px;"></div>
+        </details>
+      </section>
+
+      <!-- CARD 3: Media & Playback Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-play"/></svg>
+            <span>Media Controls</span>
+          </div>
+        </div>
+
+        <!-- Media Controls Buttons -->
+        <div class="media-row">
+          <button class="media-btn" id="btn-rewind" title="Rewind">
+            <svg class="icon"><use href="#icon-rewind"/></svg>
+          </button>
+          <button class="media-btn" id="btn-play" title="Play">
+            <svg class="icon"><use href="#icon-play"/></svg>
+          </button>
+          <button class="media-btn" id="btn-pause" title="Pause">
+            <svg class="icon"><use href="#icon-pause"/></svg>
+          </button>
+          <button class="media-btn" id="btn-stop" title="Stop">
+            <svg class="icon"><use href="#icon-stop"/></svg>
+          </button>
+          <button class="media-btn" id="btn-ff" title="Fast Forward">
+            <svg class="icon"><use href="#icon-forward"/></svg>
+          </button>
+        </div>
+
+        <!-- Color Buttons -->
+        <div class="color-buttons-row">
+          <button class="color-btn red" data-key="RED" title="Red"></button>
+          <button class="color-btn green" data-key="GREEN" title="Green"></button>
+          <button class="color-btn yellow" data-key="YELLOW" title="Yellow"></button>
+          <button class="color-btn blue" data-key="BLUE" title="Blue"></button>
+        </div>
+      </section>
+
+      <!-- CARD 4: Number Pad Card -->
+      <section class="section-card">
+        <details class="numpad-accordion" style="background: transparent; border: none; padding: 0;">
+          <summary style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">
+            <svg class="icon" style="fill: var(--accent-cyan);"><use href="#icon-calc"/></svg> Number Pad & Keys
+          </summary>
+          <div class="numpad-grid">
+            <button class="num-btn" data-key="1">1</button>
+            <button class="num-btn" data-key="2">2</button>
+            <button class="num-btn" data-key="3">3</button>
+            <button class="num-btn" data-key="4">4</button>
+            <button class="num-btn" data-key="5">5</button>
+            <button class="num-btn" data-key="6">6</button>
+            <button class="num-btn" data-key="7">7</button>
+            <button class="num-btn" data-key="8">8</button>
+            <button class="num-btn" data-key="9">9</button>
+            <button class="num-btn" data-key="CC">CC</button>
+            <button class="num-btn" data-key="0">0</button>
+            <button class="num-btn" data-key="LIST">LIST</button>
+          </div>
+        </details>
+      </section>
+
+      <!-- CARD 5: TV Toast Alert Card -->
+      <section class="section-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon"><use href="#icon-msg"/></svg>
+            <span>TV Alert</span>
+          </div>
+        </div>
+        <form id="toast-form" class="toast-box">
+          <input type="text" id="toast-input" placeholder="Type a message to show on TV..." required>
+          <button type="submit" class="btn-send"><svg class="icon"><use href="#icon-send"/></svg></button>
+        </form>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="remote-footer">
+      <span>Connected to IP: <strong id="footer-ip">192.168.1.100</strong></span>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><svg class="icon"><use href="#icon-gear"/></svg> TV Connection Settings</h2>
+        <button id="btn-settings-close" class="modal-close"><svg class="icon"><use href="#icon-close"/></svg></button>
+      </div>
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="tv-ip-input">LG TV IP Address</label>
+          <input type="text" id="tv-ip-input" placeholder="e.g. 192.168.1.150" required>
+          <small>Find this on your TV in Settings &gt; Network &gt; Wi-Fi / Ethernet Connection.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="tv-mac-input">TV MAC Address (for Turn On / WoL)</label>
+          <input type="text" id="tv-mac-input" placeholder="e.g. 14:C9:13:XX:XX:XX">
+          <small>Required to turn TV ON from standby. Also ensure "Mobile TV On" is ON in TV settings.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-save"><svg class="icon"><use href="#icon-save"/></svg> Save & Connect</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Socket.io client script & app logic -->
+  <script src="socket.io/socket.io.js"></script>
+  <script src="app.js?v=3.0.0"></script>
+</body>
+</html>

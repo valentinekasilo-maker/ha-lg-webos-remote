@@ -1,0 +1,9 @@
+{
+  "tvIp": "192.168.1.100",
+  "tvMac": "",
+  "clientKey": "",
+  "saveKey": true,
+  "port": 3000,
+  "webServerPort": 8080,
+  "reconnectInterval": 5000
+}
