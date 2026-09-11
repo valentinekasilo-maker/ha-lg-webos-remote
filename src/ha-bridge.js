@@ -396,7 +396,51 @@ class HomeAssistantBridge {
       icon: 'mdi:volume-high'
     });
 
-    // 6. Text Entity (Typing)
+    // 6. Volume Number Slider
+    this.publish(`${prefix}/number/${deviceId}/volume/config`, {
+      name: 'Volume Level',
+      has_entity_name: true,
+      unique_id: `${deviceId}_num_volume`,
+      device,
+      availability_topic: availTopic,
+      command_topic: `${deviceId}/number/volume/set`,
+      state_topic: `${deviceId}/sensor/volume/state`,
+      min: 0,
+      max: 100,
+      step: 1,
+      unit_of_measurement: '%',
+      icon: 'mdi:volume-high'
+    });
+
+    // 7. Mute Switch
+    this.publish(`${prefix}/switch/${deviceId}/mute/config`, {
+      name: 'Mute',
+      has_entity_name: true,
+      unique_id: `${deviceId}_sw_mute`,
+      device,
+      availability_topic: availTopic,
+      command_topic: `${deviceId}/switch/mute/set`,
+      state_topic: `${deviceId}/binary_sensor/muted/state`,
+      payload_on: 'ON',
+      payload_off: 'OFF',
+      icon: 'mdi:volume-mute'
+    });
+
+    // 8. Screen Switch (Screen On/Off while keeping audio active)
+    this.publish(`${prefix}/switch/${deviceId}/screen/config`, {
+      name: 'Screen Power',
+      has_entity_name: true,
+      unique_id: `${deviceId}_sw_screen`,
+      device,
+      availability_topic: availTopic,
+      command_topic: `${deviceId}/switch/screen/set`,
+      state_topic: `${deviceId}/switch/screen/state`,
+      payload_on: 'ON',
+      payload_off: 'OFF',
+      icon: 'mdi:television-ambient-light'
+    });
+
+    // 9. Text Entity (Typing)
     this.publish(`${prefix}/text/${deviceId}/typing/config`, {
       name: 'Virtual Keyboard',
       has_entity_name: true,
@@ -504,8 +548,8 @@ class HomeAssistantBridge {
         return;
       }
 
-      // 3. Media Player Volume
-      if (subTopic === '/media_player/volume/set' || subTopic === '/volume/set') {
+      // 3. Media Player & Number Volume
+      if (subTopic === '/media_player/volume/set' || subTopic === '/volume/set' || subTopic === '/number/volume/set') {
         const floatVol = parseFloat(payload);
         if (!isNaN(floatVol)) {
           const intVol = floatVol <= 1.0 && floatVol > 0 ? Math.round(floatVol * 100) : Math.round(floatVol);
@@ -514,8 +558,8 @@ class HomeAssistantBridge {
         return;
       }
 
-      // 4. Media Player Mute
-      if (subTopic === '/media_player/mute/set' || subTopic === '/mute/set') {
+      // 4. Media Player & Switch Mute
+      if (subTopic === '/media_player/mute/set' || subTopic === '/mute/set' || subTopic === '/switch/mute/set') {
         const p = String(payload).trim().toUpperCase();
         if (p === 'ON' || p === '1' || p === 'TRUE' || p === 'MUTE') {
           await tv.setMute(true);
@@ -523,6 +567,19 @@ class HomeAssistantBridge {
           await tv.setMute(false);
         } else if (p === 'TOGGLE') {
           await tv.setMute(!tv.getStatus().muted);
+        }
+        return;
+      }
+
+      // 4b. Screen Power Switch
+      if (subTopic === '/switch/screen/set' || subTopic === '/screen/set') {
+        const p = String(payload).trim().toUpperCase();
+        if (p === 'ON' || p === '1' || p === 'TRUE') {
+          await tv.turnScreenOn();
+          this.publish(`${deviceId}/switch/screen/state`, 'ON');
+        } else if (p === 'OFF' || p === '0' || p === 'FALSE') {
+          await tv.turnScreenOff();
+          this.publish(`${deviceId}/switch/screen/state`, 'OFF');
         }
         return;
       }

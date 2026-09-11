@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   
-  <link rel="stylesheet" href="style.css?v=2.8.0">
+  <link rel="stylesheet" href="style.css?v=3.0.0">
 </head>
 <body>
   <!-- Embedded High-Speed SVG Icon Sprite (0ms external load time) -->
@@ -60,6 +60,12 @@
   <div class="background-glow bottom-right"></div>
 
   <div class="app-container">
+    <!-- Remote IR Emitter Notch -->
+    <div class="remote-ir-blaster">
+      <div class="ir-lens"></div>
+      <div class="ir-mic-hole"></div>
+    </div>
+
     <!-- Header -->
     <header class="remote-header">
       <div class="brand">
@@ -472,6 +478,6 @@
 
   <!-- Socket.io client script & app logic -->
   <script src="socket.io/socket.io.js"></script>
-  <script src="app.js?v=2.8.0"></script>
+  <script src="app.js?v=3.0.0"></script>
 </body>
 </html>

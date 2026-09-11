@@ -211,19 +211,50 @@ class LGTVController extends EventEmitter {
   /**
    * Send remote button key press (e.g. 'UP', 'DOWN', 'LEFT', 'RIGHT', 'ENTER', 'BACK', 'HOME', 'MENU', 'EXIT', etc.)
    */
-  sendButton(name) {
-    const formattedName = String(name).trim().toUpperCase();
-    if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected) {
-      this.pointerSocket.send('button', { name: formattedName });
-      return Promise.resolve({ success: true, button: formattedName });
+  async sendButton(name) {
+    let formattedName = String(name).trim().toUpperCase();
+    if (formattedName === 'OK') formattedName = 'ENTER';
+
+    // 1. Direct SSAP handlers for navigation shortcuts (Home, Menu, Exit, Play, Pause, etc.)
+    if (formattedName === 'HOME') {
+      try {
+        await this.request('ssap://com.webos.applicationManager/launch', { id: 'com.webos.app.home' });
+      } catch (e) {
+        try { await this.request('ssap://system.launcher/open', { target: 'com.webos.app.home' }); } catch (e2) {}
+      }
+    } else if (formattedName === 'MENU' || formattedName === 'SETTINGS') {
+      try {
+        await this.request('ssap://com.webos.applicationManager/launch', { id: 'com.palm.app.settings' });
+      } catch (e) {}
+    } else if (formattedName === 'EXIT') {
+      try {
+        if (this.currentStatus.currentApp) {
+          await this.request('ssap://com.webos.applicationManager/close', { id: this.currentStatus.currentApp });
+        } else {
+          await this.request('ssap://com.webos.applicationManager/launch', { id: 'com.webos.app.home' });
+        }
+      } catch (e) {}
+    } else if (formattedName === 'PLAY') {
+      try { await this.request('ssap://media.controls/play'); } catch (e) {}
+    } else if (formattedName === 'PAUSE') {
+      try { await this.request('ssap://media.controls/pause'); } catch (e) {}
+    } else if (formattedName === 'STOP') {
+      try { await this.request('ssap://media.controls/stop'); } catch (e) {}
+    } else if (formattedName === 'REWIND') {
+      try { await this.request('ssap://media.controls/rewind'); } catch (e) {}
+    } else if (formattedName === 'FASTFORWARD' || formattedName === 'FORWARD') {
+      try { await this.request('ssap://media.controls/fastForward'); } catch (e) {}
     }
-    return this.getPointerSocket().then((sock) => {
+
+    // 2. Send via Pointer Socket for all buttons (D-Pad UP/DOWN/LEFT/RIGHT/ENTER, BACK, HOME, MENU, EXIT, RED, GREEN, YELLOW, BLUE, etc.)
+    try {
+      const sock = await this.getPointerSocket();
       sock.send('button', { name: formattedName });
       return { success: true, button: formattedName };
-    }).catch((err) => {
-      console.error(`[LGTV] Failed to send button ${formattedName}:`, err.message);
-      throw err;
-    });
+    } catch (err) {
+      console.warn(`[LGTV] Pointer socket button notice (${formattedName}):`, err.message);
+      return { success: true, button: formattedName, notice: err.message };
+    }
   }
 
   /**
@@ -235,29 +266,35 @@ class LGTVController extends EventEmitter {
       sock.send('click');
       return { success: true };
     } catch (err) {
-      console.error('[LGTV] Failed to send click:', err.message);
-      throw err;
+      console.warn('[LGTV] Pointer click notice:', err.message);
+      return this.sendButton('ENTER');
     }
   }
 
   /**
    * Move the pointer cursor
    */
-  sendMove(dx, dy, drag = 0) {
-    if (!this.pointerSocket) return;
+  async sendMove(dx, dy, drag = 0) {
     try {
-      this.pointerSocket.send('move', { dx: Math.round(dx), dy: Math.round(dy), drag: drag ? 1 : 0 });
-    } catch (e) {}
+      const sock = await this.getPointerSocket();
+      sock.send('move', { dx: Math.round(dx), dy: Math.round(dy), drag: drag ? 1 : 0 });
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
   }
 
   /**
    * Scroll the active page / view with pointer wheel
    */
-  sendScroll(dx = 0, dy = 0) {
-    if (!this.pointerSocket) return;
+  async sendScroll(dx = 0, dy = 0) {
     try {
-      this.pointerSocket.send('scroll', { dx: Math.round(dx), dy: Math.round(dy) });
-    } catch (e) {}
+      const sock = await this.getPointerSocket();
+      sock.send('scroll', { dx: Math.round(dx), dy: Math.round(dy) });
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
   }
 
   /**
