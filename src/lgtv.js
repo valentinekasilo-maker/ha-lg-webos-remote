@@ -178,24 +178,72 @@ class LGTVController extends EventEmitter {
     if (!this.lgtv || !this.isConnected) {
       return Promise.reject(new Error('TV is not connected. Make sure TV is on.'));
     }
-    if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected) {
+    const url = 'ssap://com.webos.service.networkinput/getPointerInputSocket';
+
+    // Check if current cached pointer socket is genuinely connected
+    if (this.pointerSocket && this.pointerSocket.ws && this.pointerSocket.ws.connected === true) {
       return Promise.resolve(this.pointerSocket);
     }
+
+    // Purge dead or disconnected pointer socket
+    this.pointerSocket = null;
+    if (this.lgtv.specializedSockets && this.lgtv.specializedSockets[url]) {
+      const existing = this.lgtv.specializedSockets[url];
+      if (!existing.ws || existing.ws.connected !== true) {
+        try { existing.close(); } catch (e) {}
+        delete this.lgtv.specializedSockets[url];
+      } else {
+        this.pointerSocket = existing;
+        return Promise.resolve(existing);
+      }
+    }
+
     if (this._pointerPromise) {
       return this._pointerPromise;
     }
+
     this._pointerPromise = new Promise((resolve, reject) => {
-      this.lgtv.getSocket('ssap://com.webos.service.networkinput/getPointerInputSocket', (err, sock) => {
+      const timeoutTimer = setTimeout(() => {
         this._pointerPromise = null;
+        reject(new Error('Timeout establishing pointer input socket (3500ms)'));
+      }, 3500);
+
+      this.lgtv.getSocket(url, (err, sock) => {
+        clearTimeout(timeoutTimer);
+        this._pointerPromise = null;
+
         if (err) {
           console.warn('[LGTV] Error getting pointer input socket:', err.message);
           return reject(err);
         }
+
+        if (!sock || !sock.ws) {
+          return reject(new Error('Invalid pointer socket returned from TV'));
+        }
+
         this.pointerSocket = sock;
-        console.log('[LGTV] Pointer socket established.');
+
+        // Auto-cleanup on close/error so subsequent button clicks recreate socket
+        if (sock.ws) {
+          sock.ws.on('close', () => {
+            this.pointerSocket = null;
+            if (this.lgtv && this.lgtv.specializedSockets) {
+              delete this.lgtv.specializedSockets[url];
+            }
+          });
+          sock.ws.on('error', () => {
+            this.pointerSocket = null;
+            if (this.lgtv && this.lgtv.specializedSockets) {
+              delete this.lgtv.specializedSockets[url];
+            }
+          });
+        }
+
+        console.log('[LGTV] Pointer input socket established and ready!');
         resolve(sock);
       });
     });
+
     return this._pointerPromise;
   }
 
@@ -212,8 +260,10 @@ class LGTVController extends EventEmitter {
    * Send remote button key press (e.g. 'UP', 'DOWN', 'LEFT', 'RIGHT', 'ENTER', 'BACK', 'HOME', 'MENU', 'EXIT', etc.)
    */
   async sendButton(name) {
-    let formattedName = String(name).trim().toUpperCase();
-    if (formattedName === 'OK') formattedName = 'ENTER';
+    let formattedName = String(name || '').trim().toUpperCase();
+    if (formattedName === 'OK' || formattedName === 'SELECT') formattedName = 'ENTER';
+    if (formattedName === 'RETURN') formattedName = 'BACK';
+    if (formattedName === 'SETTINGS') formattedName = 'MENU';
 
     // 1. Direct SSAP handlers for navigation shortcuts (Home, Menu, Exit, Play, Pause, etc.)
     if (formattedName === 'HOME') {
@@ -222,7 +272,7 @@ class LGTVController extends EventEmitter {
       } catch (e) {
         try { await this.request('ssap://system.launcher/open', { target: 'com.webos.app.home' }); } catch (e2) {}
       }
-    } else if (formattedName === 'MENU' || formattedName === 'SETTINGS') {
+    } else if (formattedName === 'MENU') {
       try {
         await this.request('ssap://com.webos.applicationManager/launch', { id: 'com.palm.app.settings' });
       } catch (e) {}
@@ -252,8 +302,31 @@ class LGTVController extends EventEmitter {
       sock.send('button', { name: formattedName });
       return { success: true, button: formattedName };
     } catch (err) {
-      console.warn(`[LGTV] Pointer socket button notice (${formattedName}):`, err.message);
-      return { success: true, button: formattedName, notice: err.message };
+      console.warn(`[LGTV] Pointer socket button attempt 1 failed (${formattedName}):`, err.message);
+      // Invalidate and retry once
+      this.pointerSocket = null;
+      try {
+        const sockRetry = await this.getPointerSocket();
+        sockRetry.send('button', { name: formattedName });
+        return { success: true, button: formattedName };
+      } catch (err2) {
+        console.warn(`[LGTV] Pointer socket button attempt 2 failed (${formattedName}):`, err2.message);
+        
+        // Direct SSAP fallback for ENTER and BACK if pointer socket is completely unavailable
+        if (formattedName === 'ENTER') {
+          try {
+            await this.request('ssap://com.webos.service.ime/sendEnterKey');
+            return { success: true, button: 'ENTER', fallback: 'ime' };
+          } catch (e3) {}
+        } else if (formattedName === 'BACK') {
+          try {
+            await this.request('ssap://com.webos.service.ime/deleteCharacters', { count: 1 });
+            return { success: true, button: 'BACK', fallback: 'ime' };
+          } catch (e4) {}
+        }
+        
+        return { success: true, button: formattedName, notice: err2.message };
+      }
     }
   }
 
@@ -266,8 +339,16 @@ class LGTVController extends EventEmitter {
       sock.send('click');
       return { success: true };
     } catch (err) {
-      console.warn('[LGTV] Pointer click notice:', err.message);
-      return this.sendButton('ENTER');
+      console.warn('[LGTV] Pointer click attempt 1 failed, retrying...', err.message);
+      this.pointerSocket = null;
+      try {
+        const sockRetry = await this.getPointerSocket();
+        sockRetry.send('click');
+        return { success: true };
+      } catch (err2) {
+        console.warn('[LGTV] Pointer click fallback to ENTER button');
+        return this.sendButton('ENTER');
+      }
     }
   }
 
@@ -280,7 +361,14 @@ class LGTVController extends EventEmitter {
       sock.send('move', { dx: Math.round(dx), dy: Math.round(dy), drag: drag ? 1 : 0 });
       return { success: true };
     } catch (e) {
-      return { success: false, error: e.message };
+      this.pointerSocket = null;
+      try {
+        const sockRetry = await this.getPointerSocket();
+        sockRetry.send('move', { dx: Math.round(dx), dy: Math.round(dy), drag: drag ? 1 : 0 });
+        return { success: true };
+      } catch (e2) {
+        return { success: false, error: e2.message };
+      }
     }
   }
 
@@ -293,7 +381,14 @@ class LGTVController extends EventEmitter {
       sock.send('scroll', { dx: Math.round(dx), dy: Math.round(dy) });
       return { success: true };
     } catch (e) {
-      return { success: false, error: e.message };
+      this.pointerSocket = null;
+      try {
+        const sockRetry = await this.getPointerSocket();
+        sockRetry.send('scroll', { dx: Math.round(dx), dy: Math.round(dy) });
+        return { success: true };
+      } catch (e2) {
+        return { success: false, error: e2.message };
+      }
     }
   }
 

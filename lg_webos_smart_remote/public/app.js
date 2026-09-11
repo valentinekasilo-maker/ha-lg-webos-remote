@@ -1,13 +1,20 @@
 // Detect Home Assistant Ingress base path or standalone path
-const basePath = window.location.pathname.endsWith('/') 
-  ? window.location.pathname.slice(0, -1) 
-  : window.location.pathname;
+function getIngressBasePath() {
+  let p = window.location.pathname || '';
+  if (p.endsWith('/index.html')) p = p.slice(0, -11);
+  if (p.endsWith('/')) p = p.slice(0, -1);
+  return p;
+}
+const basePath = getIngressBasePath();
 
-// Connect to backend Socket.IO server with prioritized websocket transport
+// Connect to backend Socket.IO server with fallback to polling for Ingress proxy compatibility
 const socket = io({
   path: (basePath ? basePath : '') + '/socket.io',
-  transports: ['websocket', 'polling'],
-  upgrade: true
+  transports: ['polling', 'websocket'],
+  upgrade: true,
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionAttempts: Infinity
 });
 
 // DOM Elements
@@ -211,7 +218,14 @@ function bindFastTouch(el, callback) {
 
 // Send Remote Button (UP, DOWN, LEFT, RIGHT, ENTER, HOME, BACK, etc.)
 function sendKey(key) {
-  socket.emit('button', key);
+  if (!key) return;
+  haptic();
+  // 1. Real-time WebSocket emission if connected
+  if (socket && socket.connected) {
+    socket.emit('button', key);
+  }
+  // 2. Dual-dispatch via REST API for 100% reliable execution in Home Assistant Ingress
+  apiCall('/api/button/' + encodeURIComponent(key), 'POST').catch(() => {});
 }
 
 // --- Event Binding ---
@@ -272,15 +286,24 @@ if (btnReconnect) {
   });
 }
 
-// Volume Up / Down via instant WebSocket
+// Volume Up / Down via dual WebSocket & REST
 const btnVolUp = document.getElementById('btn-vol-up');
-if (btnVolUp) bindFastTouch(btnVolUp, () => socket.emit('volume', { action: 'up' }));
+if (btnVolUp) bindFastTouch(btnVolUp, () => {
+  if (socket && socket.connected) socket.emit('volume', { action: 'up' });
+  apiCall('/api/volume', 'POST', { action: 'up' }).catch(() => {});
+});
 
 const btnVolDown = document.getElementById('btn-vol-down');
-if (btnVolDown) bindFastTouch(btnVolDown, () => socket.emit('volume', { action: 'down' }));
+if (btnVolDown) bindFastTouch(btnVolDown, () => {
+  if (socket && socket.connected) socket.emit('volume', { action: 'down' });
+  apiCall('/api/volume', 'POST', { action: 'down' }).catch(() => {});
+});
 
-// Mute Toggle via instant WebSocket
-if (muteBtn) bindFastTouch(muteBtn, () => socket.emit('volume', { action: 'toggleMute' }));
+// Mute Toggle via dual WebSocket & REST
+if (muteBtn) bindFastTouch(muteBtn, () => {
+  if (socket && socket.connected) socket.emit('volume', { action: 'toggleMute' });
+  apiCall('/api/volume', 'POST', { action: 'toggleMute' }).catch(() => {});
+});
 
 // Volume Slider
 let sliderTimeout = null;
@@ -290,33 +313,55 @@ if (volSlider) {
     if (volDisplay) volDisplay.textContent = vol;
     clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(() => {
-      socket.emit('volume', { volume: vol });
-    }, 100);
+      if (socket && socket.connected) socket.emit('volume', { volume: vol });
+      apiCall('/api/volume', 'POST', { volume: vol }).catch(() => {});
+    }, 80);
   });
 }
 
-// Channel Up / Down via instant WebSocket
+// Channel Up / Down via dual WebSocket & REST
 const btnChUp = document.getElementById('btn-ch-up');
-if (btnChUp) bindFastTouch(btnChUp, () => socket.emit('channel', { action: 'up' }));
+if (btnChUp) bindFastTouch(btnChUp, () => {
+  if (socket && socket.connected) socket.emit('channel', { action: 'up' });
+  apiCall('/api/channel', 'POST', { action: 'up' }).catch(() => {});
+});
 
 const btnChDown = document.getElementById('btn-ch-down');
-if (btnChDown) bindFastTouch(btnChDown, () => socket.emit('channel', { action: 'down' }));
+if (btnChDown) bindFastTouch(btnChDown, () => {
+  if (socket && socket.connected) socket.emit('channel', { action: 'down' });
+  apiCall('/api/channel', 'POST', { action: 'down' }).catch(() => {});
+});
 
-// Media Controls via instant WebSocket
+// Media Controls via dual WebSocket & REST
 const btnPlay = document.getElementById('btn-play');
-if (btnPlay) bindFastTouch(btnPlay, () => socket.emit('media', { action: 'play' }));
+if (btnPlay) bindFastTouch(btnPlay, () => {
+  if (socket && socket.connected) socket.emit('media', { action: 'play' });
+  apiCall('/api/media', 'POST', { action: 'play' }).catch(() => {});
+});
 
 const btnPause = document.getElementById('btn-pause');
-if (btnPause) bindFastTouch(btnPause, () => socket.emit('media', { action: 'pause' }));
+if (btnPause) bindFastTouch(btnPause, () => {
+  if (socket && socket.connected) socket.emit('media', { action: 'pause' });
+  apiCall('/api/media', 'POST', { action: 'pause' }).catch(() => {});
+});
 
 const btnStop = document.getElementById('btn-stop');
-if (btnStop) bindFastTouch(btnStop, () => socket.emit('media', { action: 'stop' }));
+if (btnStop) bindFastTouch(btnStop, () => {
+  if (socket && socket.connected) socket.emit('media', { action: 'stop' });
+  apiCall('/api/media', 'POST', { action: 'stop' }).catch(() => {});
+});
 
 const btnRewind = document.getElementById('btn-rewind');
-if (btnRewind) bindFastTouch(btnRewind, () => socket.emit('media', { action: 'rewind' }));
+if (btnRewind) bindFastTouch(btnRewind, () => {
+  if (socket && socket.connected) socket.emit('media', { action: 'rewind' });
+  apiCall('/api/media', 'POST', { action: 'rewind' }).catch(() => {});
+});
 
 const btnFF = document.getElementById('btn-ff');
-if (btnFF) bindFastTouch(btnFF, () => socket.emit('media', { action: 'fastForward' }));
+if (btnFF) bindFastTouch(btnFF, () => {
+  if (socket && socket.connected) socket.emit('media', { action: 'fastForward' });
+  apiCall('/api/media', 'POST', { action: 'fastForward' }).catch(() => {});
+});
 
 // Quick Apps
 document.querySelectorAll('[data-app]').forEach((btn) => {
@@ -848,14 +893,26 @@ if (touchpadSurface) {
 
   function flushMove() {
     if (moveAccumulatorX !== 0 || moveAccumulatorY !== 0) {
-      socket.emit('mouse:move', {
-        dx: moveAccumulatorX,
-        dy: moveAccumulatorY,
+      const payload = {
+        dx: Math.round(moveAccumulatorX),
+        dy: Math.round(moveAccumulatorY),
         drag: isDragging ? 1 : 0
-      });
+      };
+      if (socket && socket.connected) {
+        socket.emit('mouse:move', payload);
+      } else {
+        apiCall('/api/mouse/move', 'POST', payload).catch(() => {});
+      }
       moveAccumulatorX = 0;
       moveAccumulatorY = 0;
     }
+  }
+
+  function triggerScroll(dy, dx = 0) {
+    if (socket && socket.connected) {
+      socket.emit('mouse:scroll', { dx, dy });
+    }
+    apiCall('/api/mouse/scroll', 'POST', { dx, dy }).catch(() => {});
   }
 
   // Pointer Down
@@ -937,7 +994,10 @@ if (touchpadSurface) {
     // If short duration and minimal movement, trigger Click
     if (duration < 300 && moveDistance < 10) {
       haptic();
-      socket.emit('mouse:click');
+      if (socket && socket.connected) {
+        socket.emit('mouse:click');
+      }
+      apiCall('/api/mouse/click', 'POST').catch(() => {});
       if (touchpadTracker) {
         touchpadTracker.style.transform = 'translate(-50%, -50%) scale(1.6)';
         setTimeout(() => {
@@ -963,7 +1023,7 @@ if (touchpadSurface) {
       const touchY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       if (lastTouchY) {
         const deltaY = (touchY - lastTouchY) * 2;
-        socket.emit('mouse:scroll', { dy: -deltaY });
+        triggerScroll(-deltaY);
       }
       lastTouchY = touchY;
     }
@@ -976,7 +1036,7 @@ if (touchpadSurface) {
   // Wheel event for desktop mouse over trackpad
   touchpadSurface.addEventListener('wheel', (e) => {
     e.preventDefault();
-    socket.emit('mouse:scroll', { dy: e.deltaY > 0 ? 20 : -20 });
+    triggerScroll(e.deltaY > 0 ? 20 : -20);
   }, { passive: false });
 }
 
@@ -986,9 +1046,29 @@ const tpScrollUp = document.getElementById('tp-scroll-up');
 const tpScrollDown = document.getElementById('tp-scroll-down');
 const tpBack = document.getElementById('tp-back');
 
-if (tpClick) tpClick.addEventListener('click', () => { haptic(); socket.emit('mouse:click'); });
-if (tpScrollUp) tpScrollUp.addEventListener('click', () => { haptic(); socket.emit('mouse:scroll', { dy: -25 }); });
-if (tpScrollDown) tpScrollDown.addEventListener('click', () => { haptic(); socket.emit('mouse:scroll', { dy: 25 }); });
-if (tpBack) tpBack.addEventListener('click', () => sendKey('BACK'));
+if (tpClick) {
+  tpClick.addEventListener('click', () => {
+    haptic();
+    if (socket && socket.connected) socket.emit('mouse:click');
+    apiCall('/api/mouse/click', 'POST').catch(() => {});
+  });
+}
+if (tpScrollUp) {
+  tpScrollUp.addEventListener('click', () => {
+    haptic();
+    if (socket && socket.connected) socket.emit('mouse:scroll', { dy: -25 });
+    apiCall('/api/mouse/scroll', 'POST', { dy: -25 }).catch(() => {});
+  });
+}
+if (tpScrollDown) {
+  tpScrollDown.addEventListener('click', () => {
+    haptic();
+    if (socket && socket.connected) socket.emit('mouse:scroll', { dy: 25 });
+    apiCall('/api/mouse/scroll', 'POST', { dy: 25 }).catch(() => {});
+  });
+}
+if (tpBack) {
+  tpBack.addEventListener('click', () => sendKey('BACK'));
+}
 
 

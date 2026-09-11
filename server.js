@@ -30,7 +30,12 @@ const compression = require('compression');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: '*' }
+  cors: { origin: '*' },
+  transports: ['polling', 'websocket'],
+  allowUpgrades: true,
+  pingTimeout: 30000,
+  pingInterval: 15000,
+  maxHttpBufferSize: 1e6
 });
 
 app.use(compression());
