@@ -10,9 +10,9 @@ const HA_OPTIONS_FILE = '/data/options.json';
 
 // Default fallback configuration
 const defaultDefaults = {
-  tvIp: process.env.TV_IP || '192.168.1.100',
-  tvMac: process.env.TV_MAC || '',
-  clientKey: process.env.TV_CLIENT_KEY || process.env.CLIENT_KEY || '',
+  tvIp: process.env.TV_IP || '192.168.50.84',
+  tvMac: process.env.TV_MAC || '90:7A:BE:96:CD:E0',
+  clientKey: process.env.TV_CLIENT_KEY || process.env.CLIENT_KEY || 'fef98ca0e8e25004fcbdc2fa09f0313c',
   saveKey: true,
   port: parseInt(process.env.TV_PORT, 10) || 3001,
   webServerPort: parseInt(process.env.PORT, 10) || 8080,
